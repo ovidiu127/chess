@@ -2,11 +2,8 @@
 #define __GEN
 
 #include "utils.h"
-
-typedef struct{
-    int *x,*y;
-    int n;
-}pieceMoves;
+#include "piece.h"
+#include "move.h"
 
 void genMove(bool color);
 

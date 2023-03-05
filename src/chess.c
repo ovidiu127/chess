@@ -6,17 +6,16 @@
 #include "move.h"
 #include "piece.h"
 
-extern pieceMoves moves[6];
 extern int board[9][9];
 
 bool toMove=WHITE;
 
-int analizeCommand(const char* command){
+bool analizeCommand(const char* command){
 	int c[]={command[0]-'a'+1,command[1]-'0',command[2]-'a'+1,command[3]-'0'};
 	for(int i=0;i<4;++i){
 		if(c[i]<1||c[i]>8){
 			printf("Invalid command!\n");
-			return INVALID;
+			return false;
 		}
 	}
 	return move(c);
@@ -41,7 +40,7 @@ void play(){
 				printf("%s to move: ",(toMove==WHITE)?"WHITE":"BLACK");
 				scanf("%4s",command);
 				toLower(command);
-			}while(analizeCommand(command)==INVALID);
+			}while(!analizeCommand(command));
 			
 			toMove=!toMove;
 		}
@@ -64,10 +63,11 @@ void play(){
 					printf("Your move: ");
 					scanf("%4s",command);
 					toLower(command);
-				}while(analizeCommand(command)==INVALID);
+				}while(!analizeCommand(command));
 			}
 			//computer's move
 			else{
+				// clear();
 				genMove(toMove);
 			}
 			
@@ -77,6 +77,8 @@ void play(){
 }
 		
 int main(){
+	srand(time(0));
+
 	setlocale(LC_CTYPE,"");
 	play();
 	return 0;

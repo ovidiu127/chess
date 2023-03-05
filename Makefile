@@ -9,8 +9,11 @@ TARGET=chess.x
 all:$(OBJ)
 	$(CC) $^ -o $(TARGET)
 
+obj/%.o:src/%.c src/%.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
 obj/%.o:src/%.c
-	$(CC) $(CFLAGS) -c $^ -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clear:
 	rm *.x

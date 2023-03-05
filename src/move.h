@@ -2,6 +2,7 @@
 #define __MOVE
 
 #include "utils.h"
+#include "types.h"
 #include "piece.h"
 
 bool canPromote(int *c);
@@ -12,14 +13,16 @@ bool canCastle(int *c);
 
 void castle(int x2, int y2);
 
-int takePiece(int x2,int y2);
+bool takePiece(int x2,int y2);
 
-int checkPath(int *c);
+bool checkPath(int *c);
 
-int isLegal(int *c);
+bool isLegal(int *c);
 
 void makeMove(int *c);
 
-int move(int *c);
+bool move(int *c);
+
+void applyMove(mov *m);
 
 #endif

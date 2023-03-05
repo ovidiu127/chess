@@ -1,0 +1,4 @@
+Option 2:
+    -can move pawns, knights and bishops
+    -can only play black
+    -can fail if it tries to move an already captured piece!!!!

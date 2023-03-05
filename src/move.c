@@ -150,15 +150,15 @@ void castle(int x2, int y2){
 	}
 }
 
-int takePiece(int x2,int y2){
+bool takePiece(int x2,int y2){
 	//check if the piece to be taken does not belong to the same player
 	if(toMove==getPieceColor(board[y2][x2])){
-		return INVALID;
+		return false;
 	}
-	return VALID;
+	return true;
 }
 
-int checkPath(int *c){
+bool checkPath(int *c){
 	int x1=c[0],y1=c[1],x2=c[2],y2=c[3];
 	int bx,by,ex,ey;
 	//check if the column x1 is clear
@@ -166,7 +166,7 @@ int checkPath(int *c){
 		int by=min(y1,y2),ey=max(y1,y2);
 		for(int i=by+1;i<ey;++i){
 			if(board[i][x1]){
-				return INVALID;
+				return false;
 			}
 		}
 	}
@@ -175,7 +175,7 @@ int checkPath(int *c){
 		int bx=min(x1,x2),ex=max(x1,x2);
 		for(int i=bx+1;i<ex;++i){
 			if(board[y1][i]){
-				return INVALID;
+				return false;
 			}
 		}
 	}
@@ -185,19 +185,19 @@ int checkPath(int *c){
 		by=min(y1,y2),ey=max(y1,y2);
 		for(int i=bx+1, j=by+1; i<ex && j<ey; ++i, ++j){
 			if(board[j][i]){
-				return INVALID;
+				return false;
 			}
 		}
 	}
 	//capture the piece at the end of the path if exists
 	if(board[y2][x2]){
-		//if the piece at the end of the path belongs to the same player, the function will return INVALID
+		//if the piece at the end of the path belongs to the same player, the function will return false
 		return takePiece(x2,y2);
 	}
-	return VALID;
+	return true;
 }
 
-int isLegal(int *c){
+bool isLegal(int *c){
 	int x1=c[0],y1=c[1],x2=c[2],y2=c[3];
 	#ifdef DEBUG
 	// printf("x1:%d y1:%d x2:%d y2:%d\n",x1,y1,x2,y2);
@@ -205,7 +205,7 @@ int isLegal(int *c){
 
 	//check if the piece moves from its square
 	if(x1==x2 && y1==y2){
-		return INVALID;
+		return false;
 	}
 	switch (board[y1][x1])
 	{
@@ -213,198 +213,217 @@ int isLegal(int *c){
 		if(x1!=x2){
 			//if the pawn moves diagonally
 			if(abs(x1-x2)==1){
+				//check if there is a piece to be taken
+				if(!board[y2][x2]){
+					return false;
+				}
 				//check if the capture is valid
-				if(takePiece(x2,y2)==INVALID){
-					return INVALID;
+				if(!takePiece(x2,y2)){
+					return false;
 				}
 			}
 			else{
-				return INVALID;
+				return false;
 			}
 		}
 		else{
 			//check if the square ahead is empty
 			if(board[y2][x2]){
-				return INVALID;
+				return false;
 			}
 		}
 
 		//check if the pawn goes the right direction
 		if(y2>y1){
-			return INVALID;
+			return false;
 		}
 
 		//if pawn is in its initial position, it can move up to 2 squares
 		if(y1==7){
 			if(abs(y2-y1)>2){
-				return INVALID;
+				return false;
 			}
 		}
 		else{
 			if(abs(y2-y1)>1){
-				return INVALID;
+				return false;
 			}
 		}
-		return VALID;
-		break;
+		return true;
 	
 	case bKNIGHT:
 		//knights always change their row and column,
 		if(x1==x2||y1==y2){
-			return INVALID;
+			return false;
+		}
+		//check if the dest sqr is empty or piece can be captured
+		if(board[y2][x2]){
+			if(!takePiece(x2,y2)){
+				return false;
+			}
 		}
 		//and move 3 squares in total
 		if(abs(x1-x2)+abs(y1-y2)!=3){
-			return INVALID;
+			return false;
 		}
-		return VALID;
-		break;
+		return true;
 	
 	case bBISHOP:
 		//check if the 2 coordiantes are on the same diagonal
 		if(abs(x1-x2)!=abs(y1-y2)){
-			return INVALID;
+			return false;
 		}
 
 		//check if the path is clear
-		if(checkPath(c)==INVALID)return INVALID;
-		return VALID;
-		break;
+		if(!checkPath(c))return false;
+		return true;
 
 	case bROOK:
 		//rooks remain either on the same row or col
 		if(x1!=x2 && y1!=y2){
-			return INVALID;
+			return false;
 		}
 		//check if the path is clear
-		if(checkPath(c)==INVALID)return INVALID;
-		return VALID;
-		break;
+		if(!checkPath(c))return false;
+		return true;
 
 	case bKING:
 		//if the king moves more than one sqr
 		if(abs(x1-x2)>1 || abs(y1-y2)>1){
 			if(!canCastle(c)){
-				return INVALID;
+				return false;
 			}
 		}
-		return VALID;
-		break;
+		//check if the dest sqr is empty or piece can be captured
+		if(board[y2][x2]){
+			if(!takePiece(x2,y2)){
+				return false;
+			}
+		}
+		return true;
 	
 	case bQUEEN:
 		//if the queen leaves both its row and col
 		if(x1!=x2 && y1!=y2){
 			//check if it goes diagonally
 			if(abs(x1-x2)!=abs(y1-y2)){
-				return INVALID;
+				return false;
 			}
 		}
 		//check if the path is clear
-		if(checkPath(c)==INVALID)return INVALID;
-		return VALID;
-		break;
+		if(!checkPath(c))return false;
+		return true;
 
 	case wPAWN:
 		if(x1!=x2){
 			//if the pawn moves diagonally
 			if(abs(x1-x2)==1){
+				//check if there is a piece to be taken
+				if(!board[y2][x2]){
+					return false;
+				}
 				//check if the capture is valid
-				if(takePiece(x2,y2)==INVALID){
-					return INVALID;
+				if(!takePiece(x2,y2)){
+					return false;
 				}
 			}
 			else{
-				return INVALID;
+				return false;
 			}
 		}
 		else{
 			//check if the square ahead is empty
 			if(board[y2][x2]){
-				return INVALID;
+				return false;
 			}
 		}
 
 		//check if the pawn goes the right direction
 		if(y2<y1){
-			return INVALID;
+			return false;
 		}
 
 		//if pawn is in its initial position, it can move up to 2 squares
 		if(y1==2){
 			if(abs(y1-y2)>2){
-				return INVALID;
+				return false;
 			}
 		}
 		else{
 			if(abs(y1-y2)>1){
-				return INVALID;
+				return false;
 			}
 		}
-		return VALID;
-		break;
+		return true;
 
 	case wKNIGHT:
 		//knights always change their row and column,
 		if(x1==x2||y1==y2){
-			return INVALID;
+			return false;
+		}
+		//check if the dest sqr is empty or piece can be captured
+		if(board[y2][x2]){
+			if(!takePiece(x2,y2)){
+				return false;
+			}
 		}
 		//and move 3 squares in total
 		if(abs(x1-x2)+abs(y1-y2)!=3){
-			return INVALID;
+			return false;
 		}
-		return VALID;
-		break;
+		return true;
 
 	case wBISHOP:
 		//check if the 2 coordiantes are on the same diagonal
 		if(abs(x1-x2)!=abs(y1-y2)){
-			return INVALID;
+			return false;
 		}
 
 		//check if the path is clear
-		if(checkPath(c)==INVALID)return INVALID;
-		return VALID;
-		break;
+		if(!checkPath(c))return false;
+		return true;
 
 	case wROOK:
 		//rooks remain either on the same row or col
 		if(x1!=x2 && y1!=y2){
-			return INVALID;
+			return false;
 		}
 		//check if the path is clear
-		if(checkPath(c)==INVALID)return INVALID;
-		return VALID;
-		break;
+		if(!checkPath(c))return false;
+		return true;
 	
 	case wKING:
 		//if the king moves more than one sqr
 		if(abs(x1-x2)>1 || abs(y1-y2)>1){
-			if(!wk){
-				return INVALID;
-			}
 			if(!canCastle(c)){
-				return INVALID;
+				return false;
 			}
 		}
-		return VALID;
-		break;
+		//check if the dest sqr is empty or piece can be captured
+		if(board[y2][x2]){
+			if(!takePiece(x2,y2)){
+				return false;
+			}
+		}
+		return true;
 	
 	case wQUEEN:
 		//if the queen leaves both its row and col
 		if(x1!=x2 && y1!=y2){
 			//check if it goes diagonally
 			if(abs(x1-x2)!=abs(y1-y2)){
-				return INVALID;
+				return false;
 			}
 		}
-		if(checkPath(c)==INVALID)return INVALID;
-		return VALID;
-		break;
+		if(!checkPath(c))return false;
+		return true;
 	
 	default:
+		#ifdef DEBUG
 		printf("Invalid piece!\n");
-		return INVALID;
-		break;
+		#endif
+
+		return false;
 	}
 }
 
@@ -415,7 +434,7 @@ void makeMove(int *c){
 	board[y1][x1]=0;
 }
 
-int move(int *c){
+bool move(int *c){
 	int x1=c[0],y1=c[1],x2=c[2],y2=c[3];
 
 	//check if the piece is of right color
@@ -424,13 +443,13 @@ int move(int *c){
 	#endif
 	if(!(toMove==getPieceColor(board[y1][x1]))){
 		printf("You cannot move that piece!\nTry again!\n");
-		return INVALID;
+		return false;
 	}
 
 	//check if move is legal
-	if(isLegal(c)==INVALID){
+	if(!isLegal(c)){
 		printf("Illegal move!\n");
-		return INVALID;
+		return false;
 	}
 
 	switch (board[y1][x1])
@@ -478,5 +497,12 @@ int move(int *c){
 		break;
 	}
 
-	return VALID;
+	return true;
+}
+
+void applyMove(mov *m){
+	int c[]={m->p->x,m->p->y,m->p->x+m->x,m->p->y+m->y};
+	move(c);
+	m->p->x+=m->x;
+	m->p->y+=m->y;
 }
