@@ -67,7 +67,6 @@ void play(){
 			}
 			//computer's move
 			else{
-				// clear();
 				genMove(toMove);
 			}
 			

@@ -1,6 +1,6 @@
 #include "piece.h"
 
-piece pieces[32];
+piece pieces[2][16];
 
 bool isValid(mov *m){
     int x=m->p->x+m->x, y=m->p->y+m->y;
@@ -16,10 +16,27 @@ bool isValid(mov *m){
 
 //generates only knight moves
 moves* getMoves(piece *p){
-	int j;
+	int j=0;
 	mov *ax;
 	moves* ans=(moves*)malloc(sizeof(moves));
 	switch(p->type){
+	case wKING:
+	case bKING:
+		ans->m=(mov*)malloc(8*sizeof(mov));
+		if(!ans){
+			printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
+			assert(0);
+		}
+		int Kx[]={-1,-1,-1, 0,0, 1,1,1};
+		int Ky[]={-1, 0, 1,-1,1,-1,0,1};
+		for(int i=0;i<8;++i){
+			ax=&((mov){Kx[i],Ky[i],p});
+			if(isValid(ax)){
+				ans->m[j++]=(mov){Kx[i],Ky[i],p};
+			}
+		}
+		ans->m=(mov*)realloc(ans->m,j*sizeof(mov));
+		break;
 	case wKNIGHT:
 	case bKNIGHT:
 		ans->m=(mov*)malloc(8*sizeof(mov));
@@ -27,7 +44,6 @@ moves* getMoves(piece *p){
 			printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
 			assert(0);
 		}
-		j=0;
 		int Nx[]={-2,-2,-1,-1,1,1,2,2};
 		int Ny[]={-1,1,-2,2,-2,2,-1,1};
 		for(int i=0;i<8;++i){
@@ -37,23 +53,21 @@ moves* getMoves(piece *p){
 			}
 		}
 		ans->m=(mov*)realloc(ans->m,j*sizeof(mov));
-		ans->dim=j;
 		break;
 	case wBISHOP:
 	case bBISHOP:
-		ans->m=(mov*)malloc(8*sizeof(mov));
+		ans->m=(mov*)malloc(4*8*sizeof(mov));
 		if(!ans){
 			printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
 			assert(0);
 		}
-		j=0;
 		int Bx[]={1,1,-1,-1};
 		int By[]={1,-1,-1,1};
 		for(int i=0;i<4;++i){
 			for(int k=0;k<8;++k){
 				ax=&((mov){Bx[i]*k,By[i]*k,p});
 				if(isValid(ax)){
-					ans->m[j++]=(mov){Nx[i]*k,Ny[i]*k,p};
+					ans->m[j++]=(mov){Bx[i]*k,By[i]*k,p};
 				}
 				else{
 					break;
@@ -61,7 +75,50 @@ moves* getMoves(piece *p){
 			}
 		}
 		ans->m=(mov*)realloc(ans->m,j*sizeof(mov));
-		ans->dim=j;
+		break;
+	case wROOK:
+	case bROOK:
+		ans->m=(mov*)malloc(4*8*sizeof(mov));
+		if(!ans){
+			printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
+			assert(0);
+		}
+		int Rx[]={0,0,1,-1};
+		int Ry[]={1,-1,0,0};
+		for(int i=0;i<4;++i){
+			for(int k=0;k<8;++k){
+				ax=&((mov){Rx[i]*k,Ry[i]*k,p});
+				if(isValid(ax)){
+					ans->m[j++]=(mov){Rx[i]*k,Ry[i]*k,p};
+				}
+				else{
+					break;
+				}
+			}
+		}
+		ans->m=(mov*)realloc(ans->m,j*sizeof(mov));
+		break;
+	case wQUEEN:
+	case bQUEEN:
+		ans->m=(mov*)malloc(8*8*sizeof(mov));
+		if(!ans){
+			printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
+			assert(0);
+		}
+		int Qx[]={0,0,1,-1,1,1,-1,-1};
+		int Qy[]={1,-1,0,0,1,-1,-1,1};
+		for(int i=0;i<8;++i){
+			for(int k=0;k<8;++k){
+				ax=&((mov){Qx[i]*k,Qy[i]*k,p});
+				if(isValid(ax)){
+					ans->m[j++]=(mov){Qx[i]*k,Qy[i]*k,p};
+				}
+				else{
+					break;
+				}
+			}
+		}
+		ans->m=(mov*)realloc(ans->m,j*sizeof(mov));
 		break;
 	case bPAWN:
 		ans->m=(mov*)malloc(3*sizeof(mov));
@@ -69,7 +126,6 @@ moves* getMoves(piece *p){
 			printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
 			assert(0);
 		}
-		j=0;
 		int bPx[]={1,0,-1,0};
 		int bPy[]={-1,-1,-1,-2};
 		for(int i=0;i<4;++i){
@@ -79,7 +135,6 @@ moves* getMoves(piece *p){
 			}
 		}
 		ans->m=(mov*)realloc(ans->m,j*sizeof(mov));
-		ans->dim=j;
 		break;
 	case wPAWN:
 		ans->m=(mov*)malloc(3*sizeof(mov));
@@ -87,7 +142,6 @@ moves* getMoves(piece *p){
 			printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
 			assert(0);
 		}
-		j=0;
 		int wPx[]={1,0,-1,0};
 		int wPy[]={1,1,1,2};
 		for(int i=0;i<4;++i){
@@ -97,12 +151,12 @@ moves* getMoves(piece *p){
 			}
 		}
 		ans->m=(mov*)realloc(ans->m,j*sizeof(mov));
-		ans->dim=j;
 		break;
 	default:
 		printf("Not a valid piece!\n");
 		return NULL;
 	}
+	ans->dim=j;
 	return ans;
 }
 

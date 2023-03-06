@@ -3,6 +3,8 @@
 extern bool toMove;
 extern int board[9][9];
 
+extern piece pieces[2][16];
+
 //king movement tracking
 static bool wk=1,bk=1;
 
@@ -154,6 +156,11 @@ bool takePiece(int x2,int y2){
 	//check if the piece to be taken does not belong to the same player
 	if(toMove==getPieceColor(board[y2][x2])){
 		return false;
+	}
+	for(int i=0;i<16;++i){
+		if(pieces[toMove][i].x==x2 && pieces[toMove][i].y==y2){
+			pieces[toMove][i].s=INACTIVE;
+		}
 	}
 	return true;
 }
