@@ -9,8 +9,8 @@ int getPieceValue(unsigned piece);
 
 bool getPieceColor(unsigned piece);
 
-bool isValid(mov *m);
+bool isValid(position *game,mov *m);
 
-moves* getMoves(piece *p);
+moves* getMoves(position *game,piece *p);
 
 #endif

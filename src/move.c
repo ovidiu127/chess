@@ -1,19 +1,11 @@
 #include "move.h"
 
-extern bool toMove;
-extern int board[9][9];
-
-extern piece pieces[2][16];
-
-//king movement tracking
-static bool wk=1,bk=1;
-
 bool canPromote(int *c){
 	int y2=c[3];
 	return (y2==1||y2==8);
 }
 
-void promote(int x2,int y2){
+void promote(position *game,int x2,int y2){
 	bool ok=0;
 	do{
 		printf("Promote pawn to [Q/R/N/B]:");
@@ -25,22 +17,22 @@ void promote(int x2,int y2){
 		switch (promote)
 		{
 		case 'q':
-			board[y2][x2]=(toMove==WHITE)?wQUEEN:bQUEEN;
+			game->board[y2][x2]=(game->toMove==WHITE)?wQUEEN:bQUEEN;
 			ok=1;
 			break;
 		
 		case 'r':
-			board[y2][x2]=(toMove==WHITE)?wROOK:bROOK;
+			game->board[y2][x2]=(game->toMove==WHITE)?wROOK:bROOK;
 			ok=1;
 			break;
 		
 		case 'n':
-			board[y2][x2]=(toMove==WHITE)?wKNIGHT:bKNIGHT;
+			game->board[y2][x2]=(game->toMove==WHITE)?wKNIGHT:bKNIGHT;
 			ok=1;
 			break;
 		
 		case 'b':
-			board[y2][x2]=(toMove==WHITE)?wBISHOP:bBISHOP;
+			game->board[y2][x2]=(game->toMove==WHITE)?wBISHOP:bBISHOP;
 			ok=1;
 			break;
 		
@@ -51,12 +43,12 @@ void promote(int x2,int y2){
 	}while(!ok);
 }
 
-bool canCastle(int *c){
+bool canCastle(position *game,int *c){
 	int x1=c[0],y1=c[1],x2=c[2];
-	unsigned piece = board[y1][x1];
+	unsigned piece = game->board[y1][x1];
 	if(piece == wKING){
 		//check if the white king hasn't moved
-		if(!wk){
+		if(!game->wk){
 			return false;
 		}
 
@@ -68,7 +60,7 @@ bool canCastle(int *c){
 		//short castle
 		if(x2==c2num('g')){
 			//check if path is clear and if the rook is in place
-			if(board[1][c2num('f')] || board[1][c2num('g')] || (board[1][c2num('h')]!=wROOK)){
+			if(game->board[1][c2num('f')] || game->board[1][c2num('g')] || (game->board[1][c2num('h')]!=wROOK)){
 				return false;
 			}
 		}
@@ -76,14 +68,14 @@ bool canCastle(int *c){
 		//long castle
 		else if(x2==c2num('c')){
 			//check if path is clear and if the rook is in place
-			if(board[1][c2num('b')] || board[1][c2num('c')] || board[1][c2num('d')] || (board[1][c2num('a')]!=wROOK)){
+			if(game->board[1][c2num('b')] || game->board[1][c2num('c')] || game->board[1][c2num('d')] || (game->board[1][c2num('a')]!=wROOK)){
 				return false;
 			}
 		}
 	}
 	else{
 		//check if the black king hasn't moved
-		if(!bk){
+		if(!game->bk){
 			return false;
 		}
 		
@@ -95,7 +87,7 @@ bool canCastle(int *c){
 		//short castle
 		if(x2==c2num('g')){
 			//check if path is clear and if the rook is in place
-			if(board[8][c2num('f')] || board[8][c2num('g')] || (board[8][c2num('h')]!=bROOK)){
+			if(game->board[8][c2num('f')] || game->board[8][c2num('g')] || (game->board[8][c2num('h')]!=bROOK)){
 				return false;
 			}
 		}
@@ -103,7 +95,7 @@ bool canCastle(int *c){
 		//long castle
 		else if(x2==c2num('c')){
 			//check if path is clear and if the rook is in place
-			if(board[8][c2num('b')] || board[8][c2num('c')] || board[8][c2num('d')] || (board[8][c2num('a')]!=bROOK)){
+			if(game->board[8][c2num('b')] || game->board[8][c2num('c')] || game->board[8][c2num('d')] || (game->board[8][c2num('a')]!=bROOK)){
 				return false;
 			}
 		}
@@ -111,68 +103,68 @@ bool canCastle(int *c){
 	return true;
 }
 
-void castle(int x2, int y2){
+void castle(position *game,int x2, int y2){
 	//white castle
 	if(y2==1){
 		//short castle
 		if(x2==c2num('g')){
-			board[1][c2num('e')]=0;
-			board[1][c2num('h')]=0;
+			game->board[1][c2num('e')]=0;
+			game->board[1][c2num('h')]=0;
 
-			board[1][c2num('g')]=wKING;
-			board[1][c2num('f')]=wROOK;
+			game->board[1][c2num('g')]=wKING;
+			game->board[1][c2num('f')]=wROOK;
 		}
 		//long castle
 		else{
-			board[1][c2num('e')]=0;
-			board[1][c2num('a')]=0;
+			game->board[1][c2num('e')]=0;
+			game->board[1][c2num('a')]=0;
 
-			board[1][c2num('c')]=wKING;
-			board[1][c2num('d')]=wROOK;
+			game->board[1][c2num('c')]=wKING;
+			game->board[1][c2num('d')]=wROOK;
 		}
 	}
 	//black castle
 	else{
 		//short castle
 		if(x2==c2num('g')){
-			board[8][c2num('e')]=0;
-			board[8][c2num('h')]=0;
+			game->board[8][c2num('e')]=0;
+			game->board[8][c2num('h')]=0;
 
-			board[8][c2num('g')]=bKING;
-			board[8][c2num('f')]=bROOK;
+			game->board[8][c2num('g')]=bKING;
+			game->board[8][c2num('f')]=bROOK;
 		}
 		//long castle
 		else{
-			board[8][c2num('e')]=0;
-			board[8][c2num('a')]=0;
+			game->board[8][c2num('e')]=0;
+			game->board[8][c2num('a')]=0;
 
-			board[8][c2num('c')]=bKING;
-			board[8][c2num('d')]=bROOK;
+			game->board[8][c2num('c')]=bKING;
+			game->board[8][c2num('d')]=bROOK;
 		}
 	}
 }
 
-bool takePiece(int x2,int y2){
+bool takePiece(position *game,int x2,int y2){
 	//check if the piece to be taken does not belong to the same player
-	if(toMove==getPieceColor(board[y2][x2])){
+	if(game->toMove==getPieceColor(game->board[y2][x2])){
 		return false;
 	}
 	for(int i=0;i<16;++i){
-		if(pieces[toMove][i].x==x2 && pieces[toMove][i].y==y2){
-			pieces[toMove][i].s=INACTIVE;
+		if(game->pieces[game->toMove][i].x==x2 && game->pieces[game->toMove][i].y==y2){
+			game->pieces[game->toMove][i].s=INACTIVE;
 		}
 	}
 	return true;
 }
 
-bool checkPath(int *c){
+bool checkPath(position *game,int *c){
 	int x1=c[0],y1=c[1],x2=c[2],y2=c[3];
 	int bx,by,ex,ey;
 	//check if the column x1 is clear
 	if(x1==x2){
 		int by=min(y1,y2),ey=max(y1,y2);
 		for(int i=by+1;i<ey;++i){
-			if(board[i][x1]){
+			if(game->board[i][x1]){
 				return false;
 			}
 		}
@@ -181,7 +173,7 @@ bool checkPath(int *c){
 	if(y1==y2){
 		int bx=min(x1,x2),ex=max(x1,x2);
 		for(int i=bx+1;i<ex;++i){
-			if(board[y1][i]){
+			if(game->board[y1][i]){
 				return false;
 			}
 		}
@@ -191,20 +183,20 @@ bool checkPath(int *c){
 		bx=min(x1,x2),ex=max(x1,x2);
 		by=min(y1,y2),ey=max(y1,y2);
 		for(int i=bx+1, j=by+1; i<ex && j<ey; ++i, ++j){
-			if(board[j][i]){
+			if(game->board[j][i]){
 				return false;
 			}
 		}
 	}
 	//capture the piece at the end of the path if exists
-	if(board[y2][x2]){
+	if(game->board[y2][x2]){
 		//if the piece at the end of the path belongs to the same player, the function will return false
-		return takePiece(x2,y2);
+		return takePiece(game,x2,y2);
 	}
 	return true;
 }
 
-bool isLegal(int *c){
+bool isLegal(position *game,int *c){
 	int x1=c[0],y1=c[1],x2=c[2],y2=c[3];
 	#ifdef DEBUG
 	// printf("x1:%d y1:%d x2:%d y2:%d\n",x1,y1,x2,y2);
@@ -214,18 +206,18 @@ bool isLegal(int *c){
 	if(x1==x2 && y1==y2){
 		return false;
 	}
-	switch (board[y1][x1])
+	switch (game->board[y1][x1])
 	{
 	case bPAWN:
 		if(x1!=x2){
 			//if the pawn moves diagonally
 			if(abs(x1-x2)==1){
 				//check if there is a piece to be taken
-				if(!board[y2][x2]){
+				if(!game->board[y2][x2]){
 					return false;
 				}
 				//check if the capture is valid
-				if(!takePiece(x2,y2)){
+				if(!takePiece(game,x2,y2)){
 					return false;
 				}
 			}
@@ -235,7 +227,7 @@ bool isLegal(int *c){
 		}
 		else{
 			//check if the square ahead is empty
-			if(board[y2][x2]){
+			if(game->board[y2][x2]){
 				return false;
 			}
 		}
@@ -264,8 +256,8 @@ bool isLegal(int *c){
 			return false;
 		}
 		//check if the dest sqr is empty or piece can be captured
-		if(board[y2][x2]){
-			if(!takePiece(x2,y2)){
+		if(game->board[y2][x2]){
+			if(!takePiece(game,x2,y2)){
 				return false;
 			}
 		}
@@ -282,7 +274,7 @@ bool isLegal(int *c){
 		}
 
 		//check if the path is clear
-		if(!checkPath(c))return false;
+		if(!checkPath(game,c))return false;
 		return true;
 
 	case bROOK:
@@ -291,19 +283,19 @@ bool isLegal(int *c){
 			return false;
 		}
 		//check if the path is clear
-		if(!checkPath(c))return false;
+		if(!checkPath(game,c))return false;
 		return true;
 
 	case bKING:
 		//if the king moves more than one sqr
 		if(abs(x1-x2)>1 || abs(y1-y2)>1){
-			if(!canCastle(c)){
+			if(!canCastle(game,c)){
 				return false;
 			}
 		}
 		//check if the dest sqr is empty or piece can be captured
-		if(board[y2][x2]){
-			if(!takePiece(x2,y2)){
+		if(game->board[y2][x2]){
+			if(!takePiece(game,x2,y2)){
 				return false;
 			}
 		}
@@ -318,7 +310,7 @@ bool isLegal(int *c){
 			}
 		}
 		//check if the path is clear
-		if(!checkPath(c))return false;
+		if(!checkPath(game,c))return false;
 		return true;
 
 	case wPAWN:
@@ -326,11 +318,11 @@ bool isLegal(int *c){
 			//if the pawn moves diagonally
 			if(abs(x1-x2)==1){
 				//check if there is a piece to be taken
-				if(!board[y2][x2]){
+				if(!game->board[y2][x2]){
 					return false;
 				}
 				//check if the capture is valid
-				if(!takePiece(x2,y2)){
+				if(!takePiece(game,x2,y2)){
 					return false;
 				}
 			}
@@ -340,7 +332,7 @@ bool isLegal(int *c){
 		}
 		else{
 			//check if the square ahead is empty
-			if(board[y2][x2]){
+			if(game->board[y2][x2]){
 				return false;
 			}
 		}
@@ -369,8 +361,8 @@ bool isLegal(int *c){
 			return false;
 		}
 		//check if the dest sqr is empty or piece can be captured
-		if(board[y2][x2]){
-			if(!takePiece(x2,y2)){
+		if(game->board[y2][x2]){
+			if(!takePiece(game,x2,y2)){
 				return false;
 			}
 		}
@@ -387,7 +379,7 @@ bool isLegal(int *c){
 		}
 
 		//check if the path is clear
-		if(!checkPath(c))return false;
+		if(!checkPath(game,c))return false;
 		return true;
 
 	case wROOK:
@@ -396,19 +388,19 @@ bool isLegal(int *c){
 			return false;
 		}
 		//check if the path is clear
-		if(!checkPath(c))return false;
+		if(!checkPath(game,c))return false;
 		return true;
 	
 	case wKING:
 		//if the king moves more than one sqr
 		if(abs(x1-x2)>1 || abs(y1-y2)>1){
-			if(!canCastle(c)){
+			if(!canCastle(game,c)){
 				return false;
 			}
 		}
 		//check if the dest sqr is empty or piece can be captured
-		if(board[y2][x2]){
-			if(!takePiece(x2,y2)){
+		if(game->board[y2][x2]){
+			if(!takePiece(game,x2,y2)){
 				return false;
 			}
 		}
@@ -422,7 +414,7 @@ bool isLegal(int *c){
 				return false;
 			}
 		}
-		if(!checkPath(c))return false;
+		if(!checkPath(game,c))return false;
 		return true;
 	
 	default:
@@ -434,82 +426,82 @@ bool isLegal(int *c){
 	}
 }
 
-void makeMove(int *c){
+void makeMove(position *game,int *c){
 	int x1=c[0],y1=c[1],x2=c[2],y2=c[3];
 	//make the move
-	board[y2][x2]=board[y1][x1];
-	board[y1][x1]=0;
+	game->board[y2][x2]=game->board[y1][x1];
+	game->board[y1][x1]=0;
 }
 
-bool move(int *c){
+bool move(position *game,int *c){
 	int x1=c[0],y1=c[1],x2=c[2],y2=c[3];
 
 	//check if the piece is of right color
 	#ifdef DEBUG
 	printf("toMove: %d pieceColor: %d\n",toMove,getPieceColor(board[y1][x1]));
 	#endif
-	if(!(toMove==getPieceColor(board[y1][x1]))){
+	if(!(game->toMove==getPieceColor(game->board[y1][x1]))){
 		printf("You cannot move that piece!\nTry again!\n");
 		return false;
 	}
 
 	//check if move is legal
-	if(!isLegal(c)){
+	if(!isLegal(game,c)){
 		printf("Illegal move!\n");
 		return false;
 	}
 
-	switch (board[y1][x1])
+	switch (game->board[y1][x1])
 	{
 	case wPAWN:
 		if(canPromote(c)){
-			promote(x2,y2);
-			board[y1][x1]=0;
+			promote(game,x2,y2);
+			game->board[y1][x1]=0;
 		}
 		else{
-			makeMove(c);
+			makeMove(game,c);
 		}
 		break;
 	case bPAWN:
 		if(canPromote(c)){
-			promote(x2,y2);
-			board[y1][x1]=0;
+			promote(game,x2,y2);
+			game->board[y1][x1]=0;
 		}
 		else{
-			makeMove(c);
+			makeMove(game,c);
 		}
 		break;
 	case wKING:
 		//if the king moves more than 1 sqr
 		if(abs(x2-x1)>1 || abs(y2-y1)>1){
-			castle(x2,y2);
+			castle(game,x2,y2);
 		}
 		else{
-			makeMove(c);
+			makeMove(game,c);
 		}
-		wk=0;
+		game->wk=0;
 		break;
 	case bKING:
 		//if the king moves more than 1 sqr
 		if(abs(x2-x1)>1 || abs(y2-y1)>1){
-			castle(x2,y2);
+			castle(game,x2,y2);
 		}
 		else{
-			makeMove(c);
+			makeMove(game,c);
 		}
-		bk=0;
+		game->bk=0;
 		break;
 	default:
-		makeMove(c);
+		makeMove(game,c);
 		break;
 	}
 
 	return true;
 }
 
-void applyMove(mov *m){
+void applyMove(position *game,mov *m){
 	int c[]={m->p->x,m->p->y,m->p->x+m->x,m->p->y+m->y};
-	move(c);
+	move(game,c);
 	m->p->x+=m->x;
 	m->p->y+=m->y;
 }

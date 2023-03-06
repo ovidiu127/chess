@@ -1,8 +1,6 @@
 #include "piece.h"
 
-piece pieces[2][16];
-
-bool isValid(mov *m){
+bool isValid(position *game,mov *m){
     int x=m->p->x+m->x, y=m->p->y+m->y;
     if(x<1 || x>8 || y<1 || y>8){
         return false;
@@ -11,11 +9,11 @@ bool isValid(mov *m){
 	#ifdef DEBUG
 	printf("check %c:%d -> %c:%d legal:%d\n",c[0]+'a'-1,c[1],c[2]+'a'-1,c[3],isLegal(c));
 	#endif
-    return isLegal(c);
+    return isLegal(game,c);
 }
 
 //generates only knight moves
-moves* getMoves(piece *p){
+moves* getMoves(position *game,piece *p){
 	int j=0;
 	mov *ax;
 	moves* ans=(moves*)malloc(sizeof(moves));
@@ -31,7 +29,7 @@ moves* getMoves(piece *p){
 		int Ky[]={-1, 0, 1,-1,1,-1,0,1};
 		for(int i=0;i<8;++i){
 			ax=&((mov){Kx[i],Ky[i],p});
-			if(isValid(ax)){
+			if(isValid(game,ax)){
 				ans->m[j++]=(mov){Kx[i],Ky[i],p};
 			}
 		}
@@ -48,7 +46,7 @@ moves* getMoves(piece *p){
 		int Ny[]={-1,1,-2,2,-2,2,-1,1};
 		for(int i=0;i<8;++i){
 			ax=&((mov){Nx[i],Ny[i],p});
-			if(isValid(ax)){
+			if(isValid(game,ax)){
 				ans->m[j++]=(mov){Nx[i],Ny[i],p};
 			}
 		}
@@ -66,7 +64,7 @@ moves* getMoves(piece *p){
 		for(int i=0;i<4;++i){
 			for(int k=0;k<8;++k){
 				ax=&((mov){Bx[i]*k,By[i]*k,p});
-				if(isValid(ax)){
+				if(isValid(game,ax)){
 					ans->m[j++]=(mov){Bx[i]*k,By[i]*k,p};
 				}
 				else{
@@ -88,7 +86,7 @@ moves* getMoves(piece *p){
 		for(int i=0;i<4;++i){
 			for(int k=0;k<8;++k){
 				ax=&((mov){Rx[i]*k,Ry[i]*k,p});
-				if(isValid(ax)){
+				if(isValid(game,ax)){
 					ans->m[j++]=(mov){Rx[i]*k,Ry[i]*k,p};
 				}
 				else{
@@ -110,7 +108,7 @@ moves* getMoves(piece *p){
 		for(int i=0;i<8;++i){
 			for(int k=0;k<8;++k){
 				ax=&((mov){Qx[i]*k,Qy[i]*k,p});
-				if(isValid(ax)){
+				if(isValid(game,ax)){
 					ans->m[j++]=(mov){Qx[i]*k,Qy[i]*k,p};
 				}
 				else{
@@ -130,7 +128,7 @@ moves* getMoves(piece *p){
 		int bPy[]={-1,-1,-1,-2};
 		for(int i=0;i<4;++i){
 			ax=&((mov){bPx[i],bPy[i],p});
-			if(isValid(ax)){
+			if(isValid(game,ax)){
 				ans->m[j++]=(mov){bPx[i],bPy[i],p};
 			}
 		}
@@ -146,7 +144,7 @@ moves* getMoves(piece *p){
 		int wPy[]={1,1,1,2};
 		for(int i=0;i<4;++i){
 			ax=&((mov){wPx[i],wPy[i],p});
-			if(isValid(ax)){
+			if(isValid(game,ax)){
 				ans->m[j++]=(mov){wPx[i],wPy[i],p};
 			}
 		}

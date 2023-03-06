@@ -6,9 +6,7 @@
 #include "move.h"
 #include "piece.h"
 
-extern int board[9][9];
-
-bool toMove=WHITE;
+position mainGame;
 
 bool analizeCommand(const char* command){
 	int c[]={command[0]-'a'+1,command[1]-'0',command[2]-'a'+1,command[3]-'0'};
@@ -18,11 +16,11 @@ bool analizeCommand(const char* command){
 			return false;
 		}
 	}
-	return move(c);
+	return move(&mainGame,c);
 }
 
 void play(){
-	initBoard();
+	initBoard(&mainGame);
 	bool gameOver=0;
 	char command[5];
 	char mode;
@@ -34,15 +32,15 @@ void play(){
 
 	if(mode=='1'){
 		while(!gameOver){
-			printBoard(toMove);
-			printf("Score: %d\n",evalBoard());
+			printBoard(&mainGame);
+			printf("Score: %d\n",evalPosition(&mainGame));
 			do{
-				printf("%s to move: ",(toMove==WHITE)?"WHITE":"BLACK");
+				printf("%s to move: ",(mainGame.toMove==WHITE)?"WHITE":"BLACK");
 				scanf("%4s",command);
 				toLower(command);
 			}while(!analizeCommand(command));
 			
-			toMove=!toMove;
+			mainGame.toMove=!mainGame.toMove;
 		}
 	}
 	else{
@@ -56,9 +54,9 @@ void play(){
 
 		while(!gameOver){
 			//player's move
-			if(toMove == color){
-				printBoard(toMove);
-				printf("Score: %d\n",evalBoard());
+			if(mainGame.toMove == color){
+				printBoard(&mainGame);
+				printf("Score: %d\n",evalPosition(&mainGame));
 				do{
 					printf("Your move: ");
 					scanf("%4s",command);
@@ -67,10 +65,10 @@ void play(){
 			}
 			//computer's move
 			else{
-				genMove(toMove);
+				genMove(&mainGame);
 			}
 			
-			toMove=!toMove;
+			mainGame.toMove=!mainGame.toMove;
 		}
 	}
 }

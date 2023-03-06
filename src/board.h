@@ -3,11 +3,12 @@
 
 #include "utils.h"
 #include "piece.h"
+#include "types.h"
 
-int evalBoard();
+int evalPosition(position *game);
 
-void initBoard();
+void initBoard(position *game);
 
-void printBoard(bool toMove);
+void printBoard(position *game);
 
 #endif

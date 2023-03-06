@@ -37,4 +37,11 @@ typedef struct{
     int dim;
 }moves;
 
+typedef struct{
+    int board[9][9];
+    piece pieces[2][16];
+    bool toMove;
+    unsigned char wk,bk;
+}position;
+
 #endif

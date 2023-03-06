@@ -5,6 +5,6 @@
 #include "piece.h"
 #include "move.h"
 
-void genMove(bool color);
+void genMove(position *game);
 
 #endif

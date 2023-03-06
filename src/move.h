@@ -7,22 +7,22 @@
 
 bool canPromote(int *c);
 
-void promote(int x2,int y2);
+void promote(position *game,int x2,int y2);
 
-bool canCastle(int *c);
+bool canCastle(position *game,int *c);
 
-void castle(int x2, int y2);
+void castle(position *game,int x2, int y2);
 
-bool takePiece(int x2,int y2);
+bool takePiece(position *game,int x2,int y2);
 
-bool checkPath(int *c);
+bool checkPath(position *game,int *c);
 
-bool isLegal(int *c);
+bool isLegal(position *game,int *c);
 
-void makeMove(int *c);
+void makeMove(position *game,int *c);
 
-bool move(int *c);
+bool move(position *game,int *c);
 
-void applyMove(mov *m);
+void applyMove(position *game,mov *m);
 
 #endif

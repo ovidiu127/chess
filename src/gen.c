@@ -1,28 +1,24 @@
 #include "gen.h"
 
-extern int board[9][9];
-
-extern piece pieces[2][16];
-
-void genMove(bool color){
+void genMove(position *game){
     static moves *mvs[2][16];
     for(int i=0;i<16;++i){
-        if(mvs[color][i]!=NULL){
-            free(mvs[color][i]->m);
-            free(mvs[color][i]);
+        if(mvs[game->toMove][i]!=NULL){
+            free(mvs[game->toMove][i]->m);
+            free(mvs[game->toMove][i]);
         }
-        if(pieces[color][i].s==INACTIVE){
+        if(game->pieces[game->toMove][i].s==INACTIVE){
             continue;
         }
-        mvs[color][i]=getMoves(pieces[color]+i);
+        mvs[game->toMove][i]=getMoves(game,game->pieces[game->toMove]+i);
     }
     int r;
     do{
         r=rand()%16;
-        while(mvs[color][r]==NULL){
+        while(mvs[game->toMove][r]==NULL){
             r=rand()%16;
         }
-    }while(mvs[color][r]->dim==0);
-    int p=rand()%mvs[color][r]->dim;
-    applyMove(mvs[color][r]->m+p);
+    }while(mvs[game->toMove][r]->dim==0);
+    int p=rand()%mvs[game->toMove][r]->dim;
+    applyMove(game,mvs[game->toMove][r]->m+p);
 }
