@@ -16,5 +16,5 @@ obj/%.o:src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clear:
-	rm *.x
-	rm obj/*.o
+	rm -f *.x
+	rm -f obj/*.o

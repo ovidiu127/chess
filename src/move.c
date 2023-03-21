@@ -144,17 +144,31 @@ void castle(position *game,int x2, int y2){
 	}
 }
 
-bool takePiece(position *game,int x2,int y2){
-	//check if the piece to be taken does not belong to the same player
-	if(game->toMove==getPieceColor(game->board[y2][x2])){
-		return false;
-	}
-	for(int i=0;i<16;++i){
-		if(game->pieces[game->toMove][i].x==x2 && game->pieces[game->toMove][i].y==y2){
-			game->pieces[game->toMove][i].s=INACTIVE;
+bool canTakePiece(position *game,int *c){
+	int x1=c[0],y1=c[1],x2=c[2],y2=c[3];
+
+	//check for En Passant captures
+	if(game->board[y1][x1]==bPAWN || game->board[y1][x1]==wPAWN){
+		if(game->board[y2][x2]==EN_PASSANT){
+			return true;
 		}
 	}
-	return true;
+
+	//check if the piece to be taken does not belong to the same player
+	return game->toMove!=getPieceColor(game->board[y2][x2]);
+}
+
+void takePiece(position *game,int *c){
+	int x1=c[0],y1=c[1],x2=c[2],y2=c[3];
+
+	//check for En Passant captures
+	if(game->board[y1][x1]==bPAWN || game->board[y1][x1]==wPAWN){
+		if(game->board[y2][x2]==EN_PASSANT){
+			game->board[y2][x2]=0;
+			y2+=(game->board[y1][x1]==bPAWN)?1:-1;
+			game->board[y2][x2]=0;
+		}
+	}
 }
 
 bool checkPath(position *game,int *c){
@@ -191,16 +205,13 @@ bool checkPath(position *game,int *c){
 	//capture the piece at the end of the path if exists
 	if(game->board[y2][x2]){
 		//if the piece at the end of the path belongs to the same player, the function will return false
-		return takePiece(game,x2,y2);
+		return canTakePiece(game,c);
 	}
 	return true;
 }
 
 bool isLegal(position *game,int *c){
 	int x1=c[0],y1=c[1],x2=c[2],y2=c[3];
-	#ifdef DEBUG
-	// printf("x1:%d y1:%d x2:%d y2:%d\n",x1,y1,x2,y2);
-	#endif
 
 	//check if the piece moves from its square
 	if(x1==x2 && y1==y2){
@@ -217,7 +228,7 @@ bool isLegal(position *game,int *c){
 					return false;
 				}
 				//check if the capture is valid
-				if(!takePiece(game,x2,y2)){
+				if(!canTakePiece(game,c)){
 					return false;
 				}
 			}
@@ -257,7 +268,7 @@ bool isLegal(position *game,int *c){
 		}
 		//check if the dest sqr is empty or piece can be captured
 		if(game->board[y2][x2]){
-			if(!takePiece(game,x2,y2)){
+			if(!canTakePiece(game,c)){
 				return false;
 			}
 		}
@@ -295,7 +306,7 @@ bool isLegal(position *game,int *c){
 		}
 		//check if the dest sqr is empty or piece can be captured
 		if(game->board[y2][x2]){
-			if(!takePiece(game,x2,y2)){
+			if(!canTakePiece(game,c)){
 				return false;
 			}
 		}
@@ -322,7 +333,7 @@ bool isLegal(position *game,int *c){
 					return false;
 				}
 				//check if the capture is valid
-				if(!takePiece(game,x2,y2)){
+				if(!canTakePiece(game,c)){
 					return false;
 				}
 			}
@@ -362,7 +373,7 @@ bool isLegal(position *game,int *c){
 		}
 		//check if the dest sqr is empty or piece can be captured
 		if(game->board[y2][x2]){
-			if(!takePiece(game,x2,y2)){
+			if(!canTakePiece(game,c)){
 				return false;
 			}
 		}
@@ -400,7 +411,7 @@ bool isLegal(position *game,int *c){
 		}
 		//check if the dest sqr is empty or piece can be captured
 		if(game->board[y2][x2]){
-			if(!takePiece(game,x2,y2)){
+			if(!canTakePiece(game,c)){
 				return false;
 			}
 		}
@@ -428,9 +439,20 @@ bool isLegal(position *game,int *c){
 
 void makeMove(position *game,int *c){
 	int x1=c[0],y1=c[1],x2=c[2],y2=c[3];
+
 	//make the move
 	game->board[y2][x2]=game->board[y1][x1];
 	game->board[y1][x1]=0;
+}
+
+void clearMarks(position *game){
+	for(int i=1;i<=8;++i){
+		for(int j=1;j<=8;++j){
+			if(game->board[i][j]>0 && game->board[i][j]<bKING){
+				game->board[i][j]=0;
+			}
+		}
+	}
 }
 
 bool move(position *game,int *c){
@@ -441,15 +463,20 @@ bool move(position *game,int *c){
 	printf("toMove: %d pieceColor: %d\n",toMove,getPieceColor(board[y1][x1]));
 	#endif
 	if(!(game->toMove==getPieceColor(game->board[y1][x1]))){
-		printf("You cannot move that piece!\nTry again!\n");
 		return false;
 	}
 
 	//check if move is legal
 	if(!isLegal(game,c)){
-		printf("Illegal move!\n");
 		return false;
 	}
+
+	//check if there is a piece to be taken
+	if(game->board[y2][x2]){
+		takePiece(game,c);
+	}
+
+	clearMarks(game);
 
 	switch (game->board[y1][x1])
 	{
@@ -460,6 +487,10 @@ bool move(position *game,int *c){
 		}
 		else{
 			makeMove(game,c);
+			//check if the pawn has moved 2 squares (for En Passant)
+			if(abs(y2-y1)==2){
+				game->board[y2-1][x2]=EN_PASSANT;
+			}
 		}
 		break;
 	case bPAWN:
@@ -469,6 +500,10 @@ bool move(position *game,int *c){
 		}
 		else{
 			makeMove(game,c);
+			// check if the pawn has moved 2 squares (for En Passant)
+			if(abs(y2-y1)==2){
+				game->board[y2+1][x2]=EN_PASSANT;
+			}
 		}
 		break;
 	case wKING:
@@ -500,8 +535,8 @@ bool move(position *game,int *c){
 }
 
 void applyMove(position *game,mov *m){
-	int c[]={m->p->x,m->p->y,m->p->x+m->x,m->p->y+m->y};
+	int c[]={m->px,m->py,m->px+m->x,m->py+m->y};
 	move(game,c);
-	m->p->x+=m->x;
-	m->p->y+=m->y;
+	// m->px+=m->x;
+	// m->py+=m->y;
 }

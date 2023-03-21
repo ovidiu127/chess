@@ -4,7 +4,12 @@
 #include "utils.h"
 #include "piece.h"
 #include "move.h"
+#include "board.h"
 
-void genMove(position *game);
+#include <limits.h>
+
+int findMove(position *game,int depth,int maxDepth);
+
+void genMove(position *game,int difficulty);
 
 #endif

@@ -13,23 +13,22 @@ typedef enum{
     wROOK,
     wBISHOP,
     wKNIGHT,
-    wPAWN
+    wPAWN,
 }pieceType;
 
-typedef enum{
-    INACTIVE,
-    ACTIVE
-}status;
+// typedef enum{
+//     INACTIVE,
+//     ACTIVE
+// }status;
+
+// typedef struct{
+//     pieceType type;
+//     int x,y;
+//     status s;
+// }piece;
 
 typedef struct{
-    pieceType type;
-    int x,y;
-    status s;
-}piece;
-
-typedef struct{
-    int x,y;
-    piece *p;
+    int px,py,x,y;
 }mov;
 
 typedef struct{
@@ -39,7 +38,6 @@ typedef struct{
 
 typedef struct{
     int board[9][9];
-    piece pieces[2][16];
     bool toMove;
     unsigned char wk,bk;
 }position;

@@ -24,6 +24,7 @@ void play(){
 	bool gameOver=0;
 	char command[5];
 	char mode;
+	bool state;
 	do{
 		printf("Please choose mode:\n\t1) 1v1\n\t2) computer\n[1/2] ");
 		avoidSpaces();
@@ -38,7 +39,11 @@ void play(){
 				printf("%s to move: ",(mainGame.toMove==WHITE)?"WHITE":"BLACK");
 				scanf("%4s",command);
 				toLower(command);
-			}while(!analizeCommand(command));
+				state=analizeCommand(command);
+				if(!state){
+					printf("Illegal move or invalid command!\n");
+				}
+			}while(!state);
 			
 			mainGame.toMove=!mainGame.toMove;
 		}
@@ -52,6 +57,13 @@ void play(){
 		}while(color != '0' && color != '1');
 		color-='0';
 
+		int difficulty;
+		do{
+			printf("Select difficulty [1-4]:");
+			avoidSpaces();
+			scanf("%d",&difficulty);
+		}while(difficulty<1 || difficulty >4);
+
 		while(!gameOver){
 			//player's move
 			if(mainGame.toMove == color){
@@ -61,11 +73,15 @@ void play(){
 					printf("Your move: ");
 					scanf("%4s",command);
 					toLower(command);
-				}while(!analizeCommand(command));
+					state=analizeCommand(command);
+					if(!state){
+						printf("Illegal move or invalid command!\n");
+					}
+				}while(!state);
 			}
 			//computer's move
 			else{
-				genMove(&mainGame);
+				genMove(&mainGame,difficulty);
 			}
 			
 			mainGame.toMove=!mainGame.toMove;

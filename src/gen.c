@@ -1,24 +1,55 @@
 #include "gen.h"
 
-void genMove(position *game){
-    static moves *mvs[2][16];
-    for(int i=0;i<16;++i){
-        if(mvs[game->toMove][i]!=NULL){
-            free(mvs[game->toMove][i]->m);
-            free(mvs[game->toMove][i]);
-        }
-        if(game->pieces[game->toMove][i].s==INACTIVE){
-            continue;
-        }
-        mvs[game->toMove][i]=getMoves(game,game->pieces[game->toMove]+i);
+int findMove(position *game,int depth,int maxDepth){
+    if(depth>maxDepth){
+        return evalPosition(game);
     }
-    int r;
-    do{
-        r=rand()%16;
-        while(mvs[game->toMove][r]==NULL){
-            r=rand()%16;
+
+    mov *bestMove=(mov*)malloc(sizeof(mov));
+    moves *mvs;
+    position *game1=(position*)malloc(sizeof(position));
+
+    int ans=((game->toMove==BLACK)?1:-1)*INT_MAX;
+
+    for(int i=1;i<=8;++i){
+        for(int j=1;j<=8;++j){
+            if(!validPiece(game->board[j][i]) || getPieceColor(game->board[j][i])!=game->toMove){
+                continue;
+            }
+            mvs=getMoves(game,i,j);
+
+            for(int d=0;d<mvs->dim;++d){
+                *game1=*game;
+                applyMove(game1,&mvs->m[d]);
+                game1->toMove=!game1->toMove;
+                int aux=findMove(game1,depth+1,maxDepth);
+                if((game->toMove==WHITE && aux>ans) || (game->toMove==BLACK && aux<ans)){
+                    ans=aux;
+                    *bestMove=mvs->m[d];
+                }
+            }
+            if(mvs!=NULL){
+                if(mvs->dim!=0){
+                    free(mvs->m);
+                }
+                free(mvs);
+            }
         }
-    }while(mvs[game->toMove][r]->dim==0);
-    int p=rand()%mvs[game->toMove][r]->dim;
-    applyMove(game,mvs[game->toMove][r]->m+p);
+    }
+    
+    if(depth==0){
+        applyMove(game,bestMove);
+    }
+
+    if(bestMove!=NULL){
+        free(bestMove);
+    }
+    if(game1!=NULL){
+        free(game1);
+    }
+    return ans;
+}
+
+void genMove(position *game,int difficulty){
+    findMove(game,0,difficulty);
 }

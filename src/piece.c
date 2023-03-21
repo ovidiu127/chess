@@ -1,159 +1,129 @@
 #include "piece.h"
 
 bool isValid(position *game,mov *m){
-    int x=m->p->x+m->x, y=m->p->y+m->y;
+    int x=m->px+m->x, y=m->py+m->y;
     if(x<1 || x>8 || y<1 || y>8){
         return false;
     }
-    int c[]={m->p->x,m->p->y,x,y};
+    int c[]={m->px,m->py,x,y};
 	#ifdef DEBUG
 	printf("check %c:%d -> %c:%d legal:%d\n",c[0]+'a'-1,c[1],c[2]+'a'-1,c[3],isLegal(c));
 	#endif
     return isLegal(game,c);
 }
 
-//generates only knight moves
-moves* getMoves(position *game,piece *p){
+moves* getMoves(position *game,int px,int py){
 	int j=0;
 	mov *ax;
 	moves* ans=(moves*)malloc(sizeof(moves));
-	switch(p->type){
+	if(ans==NULL){
+		printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
+		exit(EXIT_FAILURE);
+	}
+	
+	ans->m=(mov*)malloc(8*8*sizeof(mov));
+	if(ans->m==NULL){
+		printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
+		exit(EXIT_FAILURE);
+	}
+
+	const int Kx[]={-1,-1,-1, 0,0, 1,1,1};
+	const int Ky[]={-1, 0, 1,-1,1,-1,0,1};
+	const int Nx[]={-2,-2,-1,-1,1,1,2,2};
+	const int Ny[]={-1,1,-2,2,-2,2,-1,1};
+	const int Bx[]={1,1,-1,-1};
+	const int By[]={1,-1,-1,1};
+	const int Rx[]={0,0,1,-1};
+	const int Ry[]={1,-1,0,0};
+	const int Qx[]={0,0,1,-1,1,1,-1,-1};
+	const int Qy[]={1,-1,0,0,1,-1,-1,1};
+	const int bPx[]={1,0,-1,0};
+	const int bPy[]={-1,-1,-1,-2};
+	const int wPx[]={1,0,-1,0};
+	const int wPy[]={1,1,1,2};
+
+	switch(game->board[py][px]){
 	case wKING:
 	case bKING:
-		ans->m=(mov*)malloc(8*sizeof(mov));
-		if(!ans){
-			printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
-			assert(0);
-		}
-		int Kx[]={-1,-1,-1, 0,0, 1,1,1};
-		int Ky[]={-1, 0, 1,-1,1,-1,0,1};
 		for(int i=0;i<8;++i){
-			ax=&((mov){Kx[i],Ky[i],p});
+			ax=&((mov){px,py,Kx[i],Ky[i]});
 			if(isValid(game,ax)){
-				ans->m[j++]=(mov){Kx[i],Ky[i],p};
+				ans->m[j++]=(mov){Kx[i],Ky[i]};
 			}
 		}
-		ans->m=(mov*)realloc(ans->m,j*sizeof(mov));
 		break;
 	case wKNIGHT:
 	case bKNIGHT:
-		ans->m=(mov*)malloc(8*sizeof(mov));
-		if(!ans){
-			printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
-			assert(0);
-		}
-		int Nx[]={-2,-2,-1,-1,1,1,2,2};
-		int Ny[]={-1,1,-2,2,-2,2,-1,1};
 		for(int i=0;i<8;++i){
-			ax=&((mov){Nx[i],Ny[i],p});
+			ax=&((mov){px,py,Nx[i],Ny[i]});
 			if(isValid(game,ax)){
-				ans->m[j++]=(mov){Nx[i],Ny[i],p};
+				ans->m[j++]=(mov){px,py,Nx[i],Ny[i]};
 			}
 		}
-		ans->m=(mov*)realloc(ans->m,j*sizeof(mov));
 		break;
 	case wBISHOP:
 	case bBISHOP:
-		ans->m=(mov*)malloc(4*8*sizeof(mov));
-		if(!ans){
-			printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
-			assert(0);
-		}
-		int Bx[]={1,1,-1,-1};
-		int By[]={1,-1,-1,1};
 		for(int i=0;i<4;++i){
 			for(int k=0;k<8;++k){
-				ax=&((mov){Bx[i]*k,By[i]*k,p});
+				ax=&((mov){px,py,Bx[i]*k,By[i]*k});
 				if(isValid(game,ax)){
-					ans->m[j++]=(mov){Bx[i]*k,By[i]*k,p};
+					ans->m[j++]=(mov){px,py,Bx[i]*k,By[i]*k};
 				}
 				else{
 					break;
 				}
 			}
 		}
-		ans->m=(mov*)realloc(ans->m,j*sizeof(mov));
 		break;
 	case wROOK:
 	case bROOK:
-		ans->m=(mov*)malloc(4*8*sizeof(mov));
-		if(!ans){
-			printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
-			assert(0);
-		}
-		int Rx[]={0,0,1,-1};
-		int Ry[]={1,-1,0,0};
 		for(int i=0;i<4;++i){
 			for(int k=0;k<8;++k){
-				ax=&((mov){Rx[i]*k,Ry[i]*k,p});
+				ax=&((mov){px,py,Rx[i]*k,Ry[i]*k});
 				if(isValid(game,ax)){
-					ans->m[j++]=(mov){Rx[i]*k,Ry[i]*k,p};
+					ans->m[j++]=(mov){px,py,Rx[i]*k,Ry[i]*k};
 				}
 				else{
 					break;
 				}
 			}
 		}
-		ans->m=(mov*)realloc(ans->m,j*sizeof(mov));
 		break;
 	case wQUEEN:
 	case bQUEEN:
-		ans->m=(mov*)malloc(8*8*sizeof(mov));
-		if(!ans){
-			printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
-			assert(0);
-		}
-		int Qx[]={0,0,1,-1,1,1,-1,-1};
-		int Qy[]={1,-1,0,0,1,-1,-1,1};
 		for(int i=0;i<8;++i){
 			for(int k=0;k<8;++k){
-				ax=&((mov){Qx[i]*k,Qy[i]*k,p});
+				ax=&((mov){px,py,Qx[i]*k,Qy[i]*k});
 				if(isValid(game,ax)){
-					ans->m[j++]=(mov){Qx[i]*k,Qy[i]*k,p};
+					ans->m[j++]=(mov){px,py,Qx[i]*k,Qy[i]*k};
 				}
 				else{
 					break;
 				}
 			}
 		}
-		ans->m=(mov*)realloc(ans->m,j*sizeof(mov));
 		break;
 	case bPAWN:
-		ans->m=(mov*)malloc(3*sizeof(mov));
-		if(!ans){
-			printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
-			assert(0);
-		}
-		int bPx[]={1,0,-1,0};
-		int bPy[]={-1,-1,-1,-2};
 		for(int i=0;i<4;++i){
-			ax=&((mov){bPx[i],bPy[i],p});
+			ax=&((mov){px,py,bPx[i],bPy[i]});
 			if(isValid(game,ax)){
-				ans->m[j++]=(mov){bPx[i],bPy[i],p};
+				ans->m[j++]=(mov){px,py,bPx[i],bPy[i]};
 			}
 		}
-		ans->m=(mov*)realloc(ans->m,j*sizeof(mov));
 		break;
 	case wPAWN:
-		ans->m=(mov*)malloc(3*sizeof(mov));
-		if(!ans){
-			printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
-			assert(0);
-		}
-		int wPx[]={1,0,-1,0};
-		int wPy[]={1,1,1,2};
 		for(int i=0;i<4;++i){
-			ax=&((mov){wPx[i],wPy[i],p});
+			ax=&((mov){px,py,wPx[i],wPy[i]});
 			if(isValid(game,ax)){
-				ans->m[j++]=(mov){wPx[i],wPy[i],p};
+				ans->m[j++]=(mov){px,py,wPx[i],wPy[i]};
 			}
 		}
-		ans->m=(mov*)realloc(ans->m,j*sizeof(mov));
 		break;
 	default:
 		printf("Not a valid piece!\n");
 		return NULL;
 	}
+	ans->m=(mov*)realloc(ans->m,j*sizeof(mov));
 	ans->dim=j;
 	return ans;
 }
@@ -212,4 +182,8 @@ bool getPieceColor(unsigned piece){
 	exit(1);
 	#endif
 	return 1;
+}
+
+bool validPiece(unsigned piece){
+	return piece >= bKING;
 }
