@@ -16,7 +16,8 @@ bool analizeCommand(const char* command){
 			return false;
 		}
 	}
-	return move(&mainGame,c);
+	mov m={c[0],c[1],c[2]-c[0],c[3]-c[1]};
+	return move(&mainGame,&m);
 }
 
 void play(){

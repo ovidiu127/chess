@@ -9,8 +9,6 @@ int getPieceValue(unsigned piece);
 
 bool getPieceColor(unsigned piece);
 
-bool isValid(position *game,mov *m);
-
 moves* getMoves(position *game,int px,int py);
 
 bool validPiece(unsigned piece);

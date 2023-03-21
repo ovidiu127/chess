@@ -1,3 +1,2 @@
 Next:
     -to implement check detection
-    -En Passant

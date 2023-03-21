@@ -1,17 +1,5 @@
 #include "piece.h"
 
-bool isValid(position *game,mov *m){
-    int x=m->px+m->x, y=m->py+m->y;
-    if(x<1 || x>8 || y<1 || y>8){
-        return false;
-    }
-    int c[]={m->px,m->py,x,y};
-	#ifdef DEBUG
-	printf("check %c:%d -> %c:%d legal:%d\n",c[0]+'a'-1,c[1],c[2]+'a'-1,c[3],isLegal(c));
-	#endif
-    return isLegal(game,c);
-}
-
 moves* getMoves(position *game,int px,int py){
 	int j=0;
 	mov *ax;
@@ -21,7 +9,7 @@ moves* getMoves(position *game,int px,int py){
 		exit(EXIT_FAILURE);
 	}
 	
-	ans->m=(mov*)malloc(8*8*sizeof(mov));
+	ans->m=(mov*)malloc(64*sizeof(mov));
 	if(ans->m==NULL){
 		printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
 		exit(EXIT_FAILURE);
@@ -47,7 +35,7 @@ moves* getMoves(position *game,int px,int py){
 	case bKING:
 		for(int i=0;i<8;++i){
 			ax=&((mov){px,py,Kx[i],Ky[i]});
-			if(isValid(game,ax)){
+			if(isLegal(game,ax)){
 				ans->m[j++]=(mov){Kx[i],Ky[i]};
 			}
 		}
@@ -56,7 +44,7 @@ moves* getMoves(position *game,int px,int py){
 	case bKNIGHT:
 		for(int i=0;i<8;++i){
 			ax=&((mov){px,py,Nx[i],Ny[i]});
-			if(isValid(game,ax)){
+			if(isLegal(game,ax)){
 				ans->m[j++]=(mov){px,py,Nx[i],Ny[i]};
 			}
 		}
@@ -66,7 +54,7 @@ moves* getMoves(position *game,int px,int py){
 		for(int i=0;i<4;++i){
 			for(int k=0;k<8;++k){
 				ax=&((mov){px,py,Bx[i]*k,By[i]*k});
-				if(isValid(game,ax)){
+				if(isLegal(game,ax)){
 					ans->m[j++]=(mov){px,py,Bx[i]*k,By[i]*k};
 				}
 				else{
@@ -80,7 +68,7 @@ moves* getMoves(position *game,int px,int py){
 		for(int i=0;i<4;++i){
 			for(int k=0;k<8;++k){
 				ax=&((mov){px,py,Rx[i]*k,Ry[i]*k});
-				if(isValid(game,ax)){
+				if(isLegal(game,ax)){
 					ans->m[j++]=(mov){px,py,Rx[i]*k,Ry[i]*k};
 				}
 				else{
@@ -94,7 +82,7 @@ moves* getMoves(position *game,int px,int py){
 		for(int i=0;i<8;++i){
 			for(int k=0;k<8;++k){
 				ax=&((mov){px,py,Qx[i]*k,Qy[i]*k});
-				if(isValid(game,ax)){
+				if(isLegal(game,ax)){
 					ans->m[j++]=(mov){px,py,Qx[i]*k,Qy[i]*k};
 				}
 				else{
@@ -106,7 +94,7 @@ moves* getMoves(position *game,int px,int py){
 	case bPAWN:
 		for(int i=0;i<4;++i){
 			ax=&((mov){px,py,bPx[i],bPy[i]});
-			if(isValid(game,ax)){
+			if(isLegal(game,ax)){
 				ans->m[j++]=(mov){px,py,bPx[i],bPy[i]};
 			}
 		}
@@ -114,7 +102,7 @@ moves* getMoves(position *game,int px,int py){
 	case wPAWN:
 		for(int i=0;i<4;++i){
 			ax=&((mov){px,py,wPx[i],wPy[i]});
-			if(isValid(game,ax)){
+			if(isLegal(game,ax)){
 				ans->m[j++]=(mov){px,py,wPx[i],wPy[i]};
 			}
 		}

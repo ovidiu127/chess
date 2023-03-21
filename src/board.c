@@ -57,7 +57,7 @@ void printBoard(position *game){
 			printf("%d ",i);
 			for(int j=8;j>=1;--j){
 				//if a place is empty, we put an empty square
-				if(game->board[i][j]==0){
+				if(game->board[i][j]<bKING){
 					printf(" %lc",((i+j)%2==0)?wSQUARE:bSQUARE);
 				}
 				else{
@@ -86,7 +86,7 @@ void printBoard(position *game){
 			printf("%d ",i);
 			for(int j=1;j<=8;++j){
 				//if a place is empty, we put an empty square
-				if(game->board[i][j]==0){
+				if(game->board[i][j]<bKING){
 					printf(" %lc",((i+j)%2==0)?wSQUARE:bSQUARE);
 				}
 				else{

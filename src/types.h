@@ -16,17 +16,6 @@ typedef enum{
     wPAWN,
 }pieceType;
 
-// typedef enum{
-//     INACTIVE,
-//     ACTIVE
-// }status;
-
-// typedef struct{
-//     pieceType type;
-//     int x,y;
-//     status s;
-// }piece;
-
 typedef struct{
     int px,py,x,y;
 }mov;
