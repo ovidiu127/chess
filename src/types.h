@@ -1,6 +1,11 @@
 #ifndef __TYPES
 #define __TYPES
 
+#define getBit(var,pos,type)     (((var)&(((type)1)<<(pos)))!=0?1:0)
+#define setBit(var,pos,type)     ((var)|=(((type)1)<<(pos)))
+#define resetBit(var,pos,type)   ((var)&=~(((type)1)<<(pos)))
+#define switchBit(var,pos,type)  ((var)^=(((type)1)<<(pos)))
+
 typedef enum{
     bKING = 0x2654,
     bQUEEN,
@@ -28,6 +33,7 @@ typedef struct{
 typedef struct{
     int board[9][9];
     bool toMove;
+    uint64_t coverage[2];
     unsigned char wk,bk;
 }position;
 

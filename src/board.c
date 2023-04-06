@@ -103,4 +103,22 @@ void printBoard(position *game){
 		}
 		putchar('\n');
 	}
+	
+	//print the coverage
+	#ifdef DEBUG
+	printf("0x%llX 0x%llX\n",game->coverage[WHITE],game->coverage[BLACK]);
+	for(int i=7;i>=0;--i){
+		for(int j=0;j<8;++j){
+			putchar(getBit(game->coverage[WHITE],i*8+j,uint64_t)+'0');
+		}
+		putchar('\n');
+	}
+	putchar('\n');
+	for(int i=7;i>=0;--i){
+		for(int j=0;j<8;++j){
+			putchar(getBit(game->coverage[BLACK],i*8+j,uint64_t)+'0');
+		}
+		putchar('\n');
+	}
+	#endif
 }

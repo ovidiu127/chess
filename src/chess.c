@@ -22,6 +22,7 @@ bool analizeCommand(const char* command){
 
 void play(){
 	initBoard(&mainGame);
+
 	bool gameOver=0;
 	char command[5];
 	char mode;
@@ -94,6 +95,8 @@ int main(){
 	srand(time(0));
 
 	setlocale(LC_CTYPE,"");
+	
+	clear();
 	play();
 	return 0;
 }

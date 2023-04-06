@@ -29,4 +29,8 @@ void avoidSpaces();
 
 void toLower(char *s);
 
+bool inBounds(int x,int y);
+
+void printbin(uint64_t n);
+
 #endif

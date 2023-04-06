@@ -13,4 +13,6 @@ moves* getMoves(position *game,int px,int py);
 
 bool validPiece(unsigned piece);
 
+void updateCoverage(position *game);
+
 #endif

@@ -145,13 +145,11 @@ void castle(position *game,int x2, int y2){
 }
 
 bool canTakePiece(position *game,mov *m){
-	int x1=m->px,y1=m->py,x2=m->px+m->x,y2=m->py+m->y;
+	int x2=m->px+m->x,y2=m->py+m->y;
 
 	//check for En Passant captures
-	if(game->board[y1][x1]==bPAWN || game->board[y1][x1]==wPAWN){
-		if(game->board[y2][x2]==EN_PASSANT){
-			return true;
-		}
+	if(game->board[y2][x2]==EN_PASSANT){
+		return true;
 	}
 
 	//check if the piece to be taken does not belong to the same player
@@ -173,7 +171,8 @@ void takePiece(position *game,mov *m){
 
 bool checkPath(position *game,mov *m){
 	int x1=m->px,y1=m->py,x2=m->px+m->x,y2=m->py+m->y;
-	int bx,by,ex,ey;
+	int sx,sy;
+
 	//check if the column x1 is clear
 	if(x1==x2){
 		int by=min(y1,y2),ey=max(y1,y2);
@@ -183,6 +182,7 @@ bool checkPath(position *game,mov *m){
 			}
 		}
 	}
+
 	//check if the row y1 is clear
 	if(y1==y2){
 		int bx=min(x1,x2),ex=max(x1,x2);
@@ -192,16 +192,19 @@ bool checkPath(position *game,mov *m){
 			}
 		}
 	}
+
 	//check if the diagonal is clear
 	else{
-		bx=min(x1,x2),ex=max(x1,x2);
-		by=min(y1,y2),ey=max(y1,y2);
-		for(int i=bx+1, j=by+1; i<ex && j<ey; ++i, ++j){
+		sx=(x2-x1)/abs(x2-x1),
+		sy=(y2-y1)/abs(y2-y1);
+
+		for(int i=x1+sx, j=y1+sy; abs(x2-i)!=1 && abs(y2-j)!=1; i+=sx, j+=sy){
 			if(game->board[j][i]){
 				return false;
 			}
 		}
 	}
+
 	//capture the piece at the end of the path if exists
 	if(game->board[y2][x2]){
 		//if the piece at the end of the path belongs to the same player, the function will return false
@@ -214,7 +217,7 @@ bool isLegal(position *game,mov *m){
 	int x1=m->px,y1=m->py,x2=m->px+m->x,y2=m->py+m->y;
 
 	//check if coordinates are in boundaries
-	if(x1<1 || x1>8 || y1<1 || y1>8 || x2<1 || x2>8 || y2<1 || y2>8){
+	if(!inBounds(x1,y1) || !inBounds(x2,y2)){
 		return false;
 	}
 
@@ -222,6 +225,12 @@ bool isLegal(position *game,mov *m){
 	if(x1==x2 && y1==y2){
 		return false;
 	}
+
+	//check if the player has the right to move the piece
+	if(!(game->toMove==getPieceColor(game->board[y1][x1]))){
+		return false;
+	}
+
 	switch (game->board[y1][x1])
 	{
 	case bPAWN:
@@ -232,6 +241,7 @@ bool isLegal(position *game,mov *m){
 				if(!game->board[y2][x2]){
 					return false;
 				}
+
 				//check if the capture is valid
 				if(!canTakePiece(game,m)){
 					return false;
@@ -264,6 +274,7 @@ bool isLegal(position *game,mov *m){
 				return false;
 			}
 		}
+
 		return true;
 	
 	case bKNIGHT:
@@ -271,16 +282,19 @@ bool isLegal(position *game,mov *m){
 		if(x1==x2||y1==y2){
 			return false;
 		}
+
 		//check if the dest sqr is empty or piece can be captured
 		if(game->board[y2][x2]){
 			if(!canTakePiece(game,m)){
 				return false;
 			}
 		}
+
 		//and move 3 squares in total
 		if(abs(x1-x2)+abs(y1-y2)!=3){
 			return false;
 		}
+
 		return true;
 	
 	case bBISHOP:
@@ -290,7 +304,10 @@ bool isLegal(position *game,mov *m){
 		}
 
 		//check if the path is clear
-		if(!checkPath(game,m))return false;
+		if(!checkPath(game,m)){
+			return false;
+		}
+
 		return true;
 
 	case bROOK:
@@ -298,17 +315,24 @@ bool isLegal(position *game,mov *m){
 		if(x1!=x2 && y1!=y2){
 			return false;
 		}
+
 		//check if the path is clear
 		if(!checkPath(game,m))return false;
 		return true;
 
 	case bKING:
+		//check if the destination is safe
+		if(getBit(game->coverage[WHITE],(y2-1)*8+(x2-1),uint64_t)){
+			return false;
+		}
+
 		//if the king moves more than one sqr
 		if(abs(x1-x2)>1 || abs(y1-y2)>1){
 			if(!canCastle(game,m)){
 				return false;
 			}
 		}
+
 		//check if the dest sqr is empty or piece can be captured
 		if(game->board[y2][x2]){
 			if(!canTakePiece(game,m)){
@@ -325,6 +349,7 @@ bool isLegal(position *game,mov *m){
 				return false;
 			}
 		}
+
 		//check if the path is clear
 		if(!checkPath(game,m))return false;
 		return true;
@@ -337,6 +362,7 @@ bool isLegal(position *game,mov *m){
 				if(!game->board[y2][x2]){
 					return false;
 				}
+
 				//check if the capture is valid
 				if(!canTakePiece(game,m)){
 					return false;
@@ -369,6 +395,7 @@ bool isLegal(position *game,mov *m){
 				return false;
 			}
 		}
+
 		return true;
 
 	case wKNIGHT:
@@ -376,16 +403,19 @@ bool isLegal(position *game,mov *m){
 		if(x1==x2||y1==y2){
 			return false;
 		}
+
 		//check if the dest sqr is empty or piece can be captured
 		if(game->board[y2][x2]){
 			if(!canTakePiece(game,m)){
 				return false;
 			}
 		}
+
 		//and move 3 squares in total
 		if(abs(x1-x2)+abs(y1-y2)!=3){
 			return false;
 		}
+
 		return true;
 
 	case wBISHOP:
@@ -395,7 +425,10 @@ bool isLegal(position *game,mov *m){
 		}
 
 		//check if the path is clear
-		if(!checkPath(game,m))return false;
+		if(!checkPath(game,m)){
+			return false;
+		}
+
 		return true;
 
 	case wROOK:
@@ -403,17 +436,25 @@ bool isLegal(position *game,mov *m){
 		if(x1!=x2 && y1!=y2){
 			return false;
 		}
+
 		//check if the path is clear
 		if(!checkPath(game,m))return false;
+
 		return true;
 	
 	case wKING:
+		//check if the destination is safe
+		if(getBit(game->coverage[BLACK],(y2-1)*8+(x2-1),uint64_t)){
+			return false;
+		}
+
 		//if the king moves more than one sqr
 		if(abs(x1-x2)>1 || abs(y1-y2)>1){
 			if(!canCastle(game,m)){
 				return false;
 			}
 		}
+
 		//check if the dest sqr is empty or piece can be captured
 		if(game->board[y2][x2]){
 			if(!canTakePiece(game,m)){
@@ -430,7 +471,9 @@ bool isLegal(position *game,mov *m){
 				return false;
 			}
 		}
+
 		if(!checkPath(game,m))return false;
+
 		return true;
 	
 	default:
@@ -467,9 +510,6 @@ bool move(position *game,mov *m){
 	#ifdef DEBUG
 	printf("toMove: %d pieceColor: %d\n",toMove,getPieceColor(board[y1][x1]));
 	#endif
-	if(!(game->toMove==getPieceColor(game->board[y1][x1]))){
-		return false;
-	}
 
 	//check if move is legal
 	if(!isLegal(game,m)){
@@ -535,6 +575,14 @@ bool move(position *game,mov *m){
 		makeMove(game,m);
 		break;
 	}
+
+	//for current player
+	updateCoverage(game);
+	//for oponent
+	game->toMove=!game->toMove;
+	updateCoverage(game);
+	//fix position
+	game->toMove=!game->toMove;
 
 	return true;
 }
