@@ -153,7 +153,6 @@ void updateCoverage(position *game){
 
 moves* getMoves(position *game,int px,int py){
 	int j=0;
-	mov *ax;
 	moves* ans=(moves*)malloc(sizeof(moves));
 	if(ans==NULL){
 		printf("Malloc failed!\n%s:%d\n",__FILE__,__LINE__);
@@ -170,8 +169,7 @@ moves* getMoves(position *game,int px,int py){
 	case wKING:
 	case bKING:
 		for(int i=0;i<8;++i){
-			ax=&((mov){px,py,Kx[i],Ky[i]});
-			if(isLegal(game,ax)){
+			if(isLegal(game,&((mov){px,py,Kx[i],Ky[i]}))){
 				ans->m[j++]=(mov){Kx[i],Ky[i]};
 			}
 		}
@@ -179,8 +177,7 @@ moves* getMoves(position *game,int px,int py){
 	case wKNIGHT:
 	case bKNIGHT:
 		for(int i=0;i<8;++i){
-			ax=&((mov){px,py,Nx[i],Ny[i]});
-			if(isLegal(game,ax)){
+			if(isLegal(game,&((mov){px,py,Nx[i],Ny[i]}))){
 				ans->m[j++]=(mov){px,py,Nx[i],Ny[i]};
 			}
 		}
@@ -189,8 +186,7 @@ moves* getMoves(position *game,int px,int py){
 	case bBISHOP:
 		for(int i=0;i<4;++i){
 			for(int k=1;k<8;++k){
-				ax=&((mov){px,py,Bx[i]*k,By[i]*k});
-				if(isLegal(game,ax)){
+				if(isLegal(game,&((mov){px,py,Bx[i]*k,By[i]*k}))){
 					ans->m[j++]=(mov){px,py,Bx[i]*k,By[i]*k};
 				}
 				else{
@@ -203,8 +199,7 @@ moves* getMoves(position *game,int px,int py){
 	case bROOK:
 		for(int i=0;i<4;++i){
 			for(int k=1;k<8;++k){
-				ax=&((mov){px,py,Rx[i]*k,Ry[i]*k});
-				if(isLegal(game,ax)){
+				if(isLegal(game,&((mov){px,py,Rx[i]*k,Ry[i]*k}))){
 					ans->m[j++]=(mov){px,py,Rx[i]*k,Ry[i]*k};
 				}
 				else{
@@ -217,8 +212,7 @@ moves* getMoves(position *game,int px,int py){
 	case bQUEEN:
 		for(int i=0;i<8;++i){
 			for(int k=1;k<8;++k){
-				ax=&((mov){px,py,Qx[i]*k,Qy[i]*k});
-				if(isLegal(game,ax)){
+				if(isLegal(game,&((mov){px,py,Qx[i]*k,Qy[i]*k}))){
 					ans->m[j++]=(mov){px,py,Qx[i]*k,Qy[i]*k};
 				}
 				else{
@@ -229,16 +223,14 @@ moves* getMoves(position *game,int px,int py){
 		break;
 	case bPAWN:
 		for(int i=0;i<4;++i){
-			ax=&((mov){px,py,bPx[i],bPy[i]});
-			if(isLegal(game,ax)){
+			if(isLegal(game,&((mov){px,py,bPx[i],bPy[i]}))){
 				ans->m[j++]=(mov){px,py,bPx[i],bPy[i]};
 			}
 		}
 		break;
 	case wPAWN:
 		for(int i=0;i<4;++i){
-			ax=&((mov){px,py,wPx[i],wPy[i]});
-			if(isLegal(game,ax)){
+			if(isLegal(game,&((mov){px,py,wPx[i],wPy[i]}))){
 				ans->m[j++]=(mov){px,py,wPx[i],wPy[i]};
 			}
 		}
