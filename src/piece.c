@@ -19,7 +19,6 @@ void updateCoverage(position *game){
 	int x,y;
 
 	game->coverage[game->toMove]=0;
-	printbin(game->coverage[game->toMove]);
 	for(int i=1;i<=8;++i){
 		for(int j=1;j<=8;++j){
 			if(!validPiece(game->board[j][i])){
@@ -150,7 +149,6 @@ void updateCoverage(position *game){
 			}
 		}
 	}
-	printbin(game->coverage[game->toMove]);
 }
 
 moves* getMoves(position *game,int px,int py){

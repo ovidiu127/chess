@@ -184,7 +184,7 @@ bool checkPath(position *game,mov *m){
 	}
 
 	//check if the row y1 is clear
-	if(y1==y2){
+	else if(y1==y2){
 		int bx=min(x1,x2),ex=max(x1,x2);
 		for(int i=bx+1;i<ex;++i){
 			if(game->board[y1][i]){
