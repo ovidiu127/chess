@@ -29,4 +29,8 @@ bool move(position *game,mov *m);
 
 void clearMarks(position *game);
 
+uint16_t getCapturedPiece(position *game,mov *m);
+
+void unmove(position *game,mov *m,uint16_t capturedPiece);
+
 #endif

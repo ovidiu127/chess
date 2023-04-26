@@ -198,7 +198,7 @@ bool checkPath(position *game,mov *m){
 		sx=(x2-x1)/abs(x2-x1),
 		sy=(y2-y1)/abs(y2-y1);
 
-		for(int i=x1+sx, j=y1+sy; abs(x2-i)!=1 && abs(y2-j)!=1; i+=sx, j+=sy){
+		for(int i=x1+sx, j=y1+sy; x2!=i && y2!=j; i+=sx, j+=sy){
 			if(game->board[j][i]){
 				return false;
 			}
@@ -473,7 +473,6 @@ bool isLegal(position *game,mov *m){
 		}
 
 		if(!checkPath(game,m))return false;
-
 		return true;
 	
 	default:
@@ -585,4 +584,17 @@ bool move(position *game,mov *m){
 	game->toMove=!game->toMove;
 
 	return true;
+}
+
+uint16_t getCapturedPiece(position *game,mov *m){
+	int x2=m->px+m->x,y2=m->py+m->y;
+
+	return game->board[y2][x2];
+}
+
+void unmove(position *game,mov *m,uint16_t capturedPiece){
+	int x1=m->px,y1=m->py,x2=m->px+m->x,y2=m->py+m->y;
+
+	game->board[y1][x1]=game->board[y2][x2];
+	game->board[y2][x2]=capturedPiece;
 }

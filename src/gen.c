@@ -5,9 +5,11 @@ int findMove(position *game,int depth,int maxDepth){
         return evalPosition(game);
     }
 
-    mov *bestMove=(mov*)malloc(sizeof(mov));
+    mov bestMove;
     moves *mvs;
-    position *game1=(position*)malloc(sizeof(position));
+    uint16_t capturedPiece;
+
+    position *game1=malloc(sizeof(position));
 
     int ans=((game->toMove==BLACK)?1:-1)*INT_MAX;
 
@@ -20,12 +22,18 @@ int findMove(position *game,int depth,int maxDepth){
 
             for(int d=0;d<mvs->dim;++d){
                 *game1=*game;
+                // capturedPiece=getCapturedPiece(game,&mvs->m[d]);
                 move(game1,&mvs->m[d]);
                 game1->toMove=!game1->toMove;
+                
                 int aux=findMove(game1,depth+1,maxDepth);
+
+                // game->toMove=game1->toMove;
+                // unmove(game,&mvs->m[d],capturedPiece);
+
                 if((game->toMove==WHITE && aux>ans) || (game->toMove==BLACK && aux<ans)){
                     ans=aux;
-                    *bestMove=mvs->m[d];
+                    bestMove=mvs->m[d];
                 }
             }
             if(mvs!=NULL){
@@ -38,14 +46,7 @@ int findMove(position *game,int depth,int maxDepth){
     }
     
     if(depth==0){
-        move(game,bestMove);
-    }
-
-    if(bestMove!=NULL){
-        free(bestMove);
-    }
-    if(game1!=NULL){
-        free(game1);
+        move(game,&bestMove);
     }
     return ans;
 }
