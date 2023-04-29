@@ -1,20 +1,21 @@
 CC=gcc
 CFLAGS=-Wall
 
-C_SRC=$(wildcard src/*.c)
-OBJ=$(patsubst src/%.c,obj/%.o,$(C_SRC))
+C_SRC_FILES=$(wildcard src/*.c)
+HEADER_FILES=$(wildcard include/*.h)
+OBJ_FILES=$(patsubst src/%.c,obj/%.o,$(C_SRC_FILES))
 
 TARGET=chess.x
 
-all:$(OBJ)
-	$(CC) $^ -o $(TARGET)
+all: create_dir $(C_SRC_FILES) $(HEADER_FILES) $(OBJ_FILES)
+	$(CC) $(OBJ_FILES) -o $(TARGET)
 
-obj/%.o:src/%.c src/%.h
-	$(CC) $(CFLAGS) -c $< -o $@
+obj/%.o: src/%.c
+	$(CC) $(CFLAGS) -I ./include -c $^ -o $@
 
-obj/%.o:src/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+create_dir:
+	mkdir -p obj
 
 clear:
 	rm -f *.x
-	rm -f obj/*.o
+	rm -f -r obj/
