@@ -8,6 +8,14 @@ void avoidSpaces(){
 	ungetc(c,stdin);
 }
 
+void skipLine(){
+	char c=getchar();
+	while(c != '\n'){
+		c=getchar();
+	}
+	ungetc(c,stdin);
+}
+
 void toLower(char *s){
 	while(*s){
 		if(*s>='A'&&*s<='Z'){

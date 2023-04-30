@@ -27,6 +27,8 @@
 
 void avoidSpaces();
 
+void skipLine();
+
 void toLower(char *s);
 
 bool inBounds(int x,int y);

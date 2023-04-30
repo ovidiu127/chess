@@ -5,20 +5,37 @@
 #include "board.h"
 #include "move.h"
 #include "piece.h"
+#include "savegame.h"
+#include "menu.h"
 
 #include <string.h>
 
-match mainGame;
+static match mainGame;
 
 bool analizeCommand(const char* command,int mode){
 	if(!strcmp(command,"undo")){
 		getFromPast(&mainGame);
 		return true;
 	}
-	int c[]={command[0]-'a'+1,command[1]-'0',command[2]-'a'+1,command[3]-'0'};
-	for(int i=0;i<4;++i){
-		if(c[i]<1||c[i]>8){
-			printf("Invalid command!\n");
+	if(!strcmp(command,"save")){
+		char *file=malloc(20 * sizeof(char));
+		if(file == NULL){
+			perror("malloc()");
+			exit(1);
+		}
+
+		printf("Enter the filename: ");
+		scanf("%19s",file);
+		skipLine();
+		save(&mainGame,file);
+		exit(0);
+	}
+	if(!strcmp(command,"exit")){
+		exit(0);
+	}
+	int c[]={command[0] - 'a' + 1,command[1] - '0',command[2] - 'a' + 1,command[3] - '0'};
+	for(int i=0;i < 4;++i){
+		if(c[i] < 1 || c[i] > 8){
 			return false;
 		}
 	}
@@ -32,21 +49,43 @@ bool analizeCommand(const char* command,int mode){
 }
 
 void play(){
-	initMatch(&mainGame);
-	initBoard(mainGame.current);
-	addToPast(&mainGame);
-
 	bool gameOver=0;
 	char command[5];
-	char mode;
 	bool state,check;
-	do{
-		printf("Please choose mode:\n\t1) 1v1\n\t2) computer\n[1/2] ");
-		avoidSpaces();
-		mode=getchar();
-	}while(mode != '1' && mode != '2');
+	char gameType;
 
-	if(mode=='1'){
+	gameType = menu("Hello!\n\t1) Start a new game\n\t2) Load a game\n","12") - '0';
+
+	//start new game
+	if(gameType == 1){
+		initMatch(&mainGame);
+		initBoard(mainGame.current);
+		addToPast(&mainGame);
+
+		mainGame.mode = menu("Please choose mode:\n\t1) 1v1\n\t2) computer\n","12") - '0';
+
+		if(mainGame.mode == 2){
+			mainGame.color = menu("Please choose your color:\n\t0) BLACK\n\t1) WHITE\n","01") - '0';
+			mainGame.difficulty = menu("Select difficulty ","1234") - '0';
+		}
+	}
+	//load existing game
+	else{
+		char *file=malloc(20 * sizeof(char));
+		if(file == NULL){
+			perror("malloc()");
+			exit(1);
+		}
+
+		printf("Enter the filename: ");
+		scanf("%19s",file);
+		skipLine();
+		load(&mainGame,file);
+
+		free(file);
+	}
+
+	if(mainGame.mode == 1){
 		while(!gameOver){
 			printBoard(mainGame.current);
 			printf("Score: %d\n",evalPosition(mainGame.current));
@@ -72,6 +111,7 @@ void play(){
 						(mainGame.current->toMove == WHITE) ? "WHITE" : "BLACK");
 
 				scanf("%4s",command);
+				skipLine();
 				toLower(command);
 				state=analizeCommand(command,1);
 				if(!state){
@@ -81,21 +121,6 @@ void play(){
 		}
 	}
 	else{
-		char color;
-		do{
-			printf("Please choose your color:\n\t0) BLACK\n\t1) WHITE\n[0/1] ");
-			avoidSpaces();
-			color=getchar();
-		}while(color != '0' && color != '1');
-		color-='0';
-
-		int difficulty;
-		do{
-			printf("Select difficulty [1-4]:");
-			avoidSpaces();
-			scanf("%d",&difficulty);
-		}while(difficulty<1 || difficulty >4);
-
 		while(!gameOver){
 			check = getBit(mainGame.current->coverage[!mainGame.current->toMove],
 						(mainGame.current->kingPosition[mainGame.current->toMove].y - 1) * 8 +
@@ -112,7 +137,7 @@ void play(){
 				return;
 			}
 			//player's move
-			if(mainGame.current->toMove == color){
+			if(mainGame.current->toMove == mainGame.color){
 				printBoard(mainGame.current);
 				printf("Score: %d\n",evalPosition(mainGame.current));
 				printf("%s",check ? "Check!\n":"");
@@ -120,6 +145,7 @@ void play(){
 				do{
 					printf("Your move: ");
 					scanf("%4s",command);
+					skipLine();
 					toLower(command);
 					state=analizeCommand(command,2);
 					if(!state){
@@ -129,7 +155,7 @@ void play(){
 			}
 			//computer's move
 			else{
-				genMove(mainGame.current,difficulty);
+				genMove(mainGame.current,mainGame.difficulty);
 				mainGame.current->toMove=!mainGame.current->toMove;
 			}
 		}

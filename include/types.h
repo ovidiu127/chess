@@ -1,6 +1,9 @@
 #ifndef __TYPES
 #define __TYPES
 
+#include <stdint.h>
+#include <stdbool.h>
+
 #define getBit(var,pos,type)     (((var)&(((type)1)<<(pos)))!=0?1:0)
 #define setBit(var,pos,type)     ((var)|=(((type)1)<<(pos)))
 #define resetBit(var,pos,type)   ((var)&=~(((type)1)<<(pos)))
@@ -44,6 +47,8 @@ typedef struct{
     position *current;
     position *past;
     int no,dim;
+    char mode,color;
+    int difficulty;
 }match;
 
 #endif

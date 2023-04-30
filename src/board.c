@@ -9,8 +9,14 @@ extern const int wPy[];
 
 void initMatch(match *g){
 	g->current=malloc(sizeof(position));
+	if(g->current == NULL){
+		perror("malloc()");
+		exit(1);
+	}
+
 	g->no=0;
 	g->dim=64;
+	
 	g->past=malloc(g->dim * sizeof(position));
 	if(g->past == NULL){
 		perror("malloc()");
