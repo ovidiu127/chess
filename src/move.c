@@ -1,5 +1,7 @@
 #include "move.h"
 
+static position auxil;
+
 bool canPromote(mov *m){
 	int y2=m->py+m->y;
 	return (y2==1||y2==8);
@@ -280,8 +282,8 @@ bool isLegal(position *game,mov *m){
 			}
 		}
 
-		return true;
-	
+		break;
+
 	case bKNIGHT:
 		//knights always change their row and column,
 		if(x1==x2||y1==y2){
@@ -300,8 +302,8 @@ bool isLegal(position *game,mov *m){
 			return false;
 		}
 
-		return true;
-	
+		break;
+
 	case bBISHOP:
 		//check if the 2 coordiantes are on the same diagonal
 		if(abs(x1-x2)!=abs(y1-y2)){
@@ -313,7 +315,7 @@ bool isLegal(position *game,mov *m){
 			return false;
 		}
 
-		return true;
+		break;
 
 	case bROOK:
 		//rooks remain either on the same row or col
@@ -323,13 +325,14 @@ bool isLegal(position *game,mov *m){
 
 		//check if the path is clear
 		if(!checkPath(game,m))return false;
-		return true;
+
+		break;
 
 	case bKING:
-		//check if the destination is safe
-		if(getBit(game->coverage[WHITE],(y2-1)*8+(x2-1),uint64_t)){
-			return false;
-		}
+		// //check if the destination is safe
+		// if(getBit(game->coverage[WHITE],(y2-1)*8+(x2-1),uint64_t)){
+		// 	return false;
+		// }
 
 		//if the king moves more than one sqr
 		if(abs(x1-x2)>1 || abs(y1-y2)>1){
@@ -344,8 +347,9 @@ bool isLegal(position *game,mov *m){
 				return false;
 			}
 		}
-		return true;
-	
+
+		break;
+
 	case bQUEEN:
 		//if the queen leaves both its row and col
 		if(x1!=x2 && y1!=y2){
@@ -357,7 +361,8 @@ bool isLegal(position *game,mov *m){
 
 		//check if the path is clear
 		if(!checkPath(game,m))return false;
-		return true;
+
+		break;
 
 	case wPAWN:
 		if(x1!=x2){
@@ -401,7 +406,7 @@ bool isLegal(position *game,mov *m){
 			}
 		}
 
-		return true;
+		break;
 
 	case wKNIGHT:
 		//knights always change their row and column,
@@ -421,7 +426,7 @@ bool isLegal(position *game,mov *m){
 			return false;
 		}
 
-		return true;
+		break;
 
 	case wBISHOP:
 		//check if the 2 coordiantes are on the same diagonal
@@ -434,7 +439,7 @@ bool isLegal(position *game,mov *m){
 			return false;
 		}
 
-		return true;
+		break;
 
 	case wROOK:
 		//rooks remain either on the same row or col
@@ -445,13 +450,13 @@ bool isLegal(position *game,mov *m){
 		//check if the path is clear
 		if(!checkPath(game,m))return false;
 
-		return true;
-	
+		break;
+
 	case wKING:
-		//check if the destination is safe
-		if(getBit(game->coverage[BLACK],(y2-1)*8+(x2-1),uint64_t)){
-			return false;
-		}
+		// //check if the destination is safe
+		// if(getBit(game->coverage[BLACK],(y2-1)*8+(x2-1),uint64_t)){
+		// 	return false;
+		// }
 
 		//if the king moves more than one sqr
 		if(abs(x1-x2)>1 || abs(y1-y2)>1){
@@ -466,8 +471,9 @@ bool isLegal(position *game,mov *m){
 				return false;
 			}
 		}
-		return true;
-	
+
+		break;
+
 	case wQUEEN:
 		//if the queen leaves both its row and col
 		if(x1!=x2 && y1!=y2){
@@ -478,8 +484,9 @@ bool isLegal(position *game,mov *m){
 		}
 
 		if(!checkPath(game,m))return false;
-		return true;
-	
+
+		break;
+
 	default:
 		#ifdef DEBUG
 		printf("Invalid piece!\n");
@@ -487,6 +494,18 @@ bool isLegal(position *game,mov *m){
 
 		return false;
 	}
+
+	//check if final position is safe for the king
+	auxil = *game;
+	move(&auxil,m,0);
+	//get opponent's coverage
+	uint64_t cov = getCoverage(&auxil,!game->toMove);
+	//check if your king is checked by the opponent (i.e. is located in the opponent's coverage)
+	if(getBit(cov,(auxil.kingPosition[game->toMove].y-1) * 8 + (auxil.kingPosition[game->toMove].x-1),uint64_t)){
+		return false;
+	}
+
+	return true;
 }
 
 void makeMove(position *game,mov *m){
@@ -507,7 +526,7 @@ void clearMarks(position *game){
 	}
 }
 
-bool move(position *game,mov *m){
+bool move(position *game,mov *m,int legalCheck){
 	int x1=m->px,y1=m->py,x2=m->px+m->x,y2=m->py+m->y;
 
 	//check if the piece is of right color
@@ -516,8 +535,10 @@ bool move(position *game,mov *m){
 	#endif
 
 	//check if move is legal
-	if(!isLegal(game,m)){
-		return false;
+	if(legalCheck){
+		if(!isLegal(game,m)){
+			return false;
+		}
 	}
 
 	//check if there is a piece to be taken
@@ -566,6 +587,8 @@ bool move(position *game,mov *m){
 			makeMove(game,m);
 		}
 		game->kingCastle[WHITE]=0;
+		game->kingPosition[WHITE].y=y2;
+		game->kingPosition[WHITE].x=x2;
 		break;
 	case bKING:
 		//if the king moves more than 1 sqr
@@ -576,6 +599,8 @@ bool move(position *game,mov *m){
 			makeMove(game,m);
 		}
 		game->kingCastle[BLACK]=0;
+		game->kingPosition[BLACK].y=y2;
+		game->kingPosition[BLACK].x=x2;
 		break;
 	default:
 		makeMove(game,m);

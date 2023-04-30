@@ -23,7 +23,7 @@ bool analizeCommand(const char* command,int mode){
 		}
 	}
 	mov m={c[0],c[1],c[2]-c[0],c[3]-c[1],0};
-	if(move(mainGame.current,&m) == 1){
+	if(move(mainGame.current,&m,1) == 1){
 		mainGame.current->toMove=!mainGame.current->toMove;
 		addToPast(&mainGame);
 		return true;
@@ -51,7 +51,12 @@ void play(){
 			printBoard(mainGame.current);
 			printf("Score: %d\n",evalPosition(mainGame.current));
 			do{
-				printf("%s to move: ",(mainGame.current->toMove==WHITE)?"WHITE":"BLACK");
+				printf("%s\n%s to move: ",
+										getBit(mainGame.current->coverage[!mainGame.current->toMove],
+											   (mainGame.current->kingPosition[mainGame.current->toMove].y - 1) * 8 +
+											   		(mainGame.current->kingPosition[mainGame.current->toMove].x - 1),
+											   uint64_t) ? "Check!":"",
+										(mainGame.current->toMove==WHITE)?"WHITE":"BLACK");
 				scanf("%4s",command);
 				toLower(command);
 				state=analizeCommand(command,1);

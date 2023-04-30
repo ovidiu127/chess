@@ -25,7 +25,7 @@ bool isLegal(position *game,mov *m);
 
 void makeMove(position *game,mov *m);
 
-bool move(position *game,mov *m);
+bool move(position *game,mov *m,int legalCheck);
 
 void clearMarks(position *game);
 

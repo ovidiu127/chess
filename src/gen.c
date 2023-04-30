@@ -21,7 +21,7 @@ int findMove(position *game,int depth,int maxDepth){
 
             for(int d=0;d<mvs->dim;++d){
                 *game1=*game;
-                move(game1,&mvs->m[d]);
+                move(game1,&mvs->m[d],0);
                 game1->toMove=!game1->toMove;
                 
                 int aux=findMove(game1,depth+1,maxDepth);
@@ -41,7 +41,7 @@ int findMove(position *game,int depth,int maxDepth){
     }
     
     if(depth==0){
-        move(game,&bestMove);
+        move(game,&bestMove,0);
     }
     return ans;
 }
