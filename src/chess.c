@@ -13,7 +13,6 @@ match mainGame;
 bool analizeCommand(const char* command,int mode){
 	if(!strcmp(command,"undo")){
 		getFromPast(&mainGame);
-		// mainGame.current->toMove=!mainGame.current->toMove;
 		return true;
 	}
 	int c[]={command[0]-'a'+1,command[1]-'0',command[2]-'a'+1,command[3]-'0'};

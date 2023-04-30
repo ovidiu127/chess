@@ -25,9 +25,8 @@ void addToPast(match *g){
 }
 
 void getFromPast(match *g){
-	--g->no;
-	if(g->no < 0){
-		g->no = 0;
+	if(g->no > 1){
+		--g->no;
 	}
 	if(g->no >= 1){
 		*g->current=g->past[g->no - 1];
