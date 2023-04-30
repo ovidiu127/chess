@@ -22,7 +22,10 @@ bool inBounds(int x,int y){
 }
 
 void printbin(uint64_t n){
-	for(int i=sizeof(n)*8;i>=0;--i){
+	for(int i=sizeof(n)*8-1;i>=0;--i){
+		if((i+1)%8==0){
+			putchar('\n');
+		}
 		putchar(n&(((uint64_t)1)<<i)?'1':'0');
 	}
 	putchar('\n');

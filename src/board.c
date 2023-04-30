@@ -73,7 +73,11 @@ void initBoard(position *game){
 		game->board[2][i]=wPAWN;
 	}
 	game->toMove=WHITE;
-	game->bk=game->wk=1;
+	game->kingCastle[WHITE]=game->kingCastle[BLACK]=1;
+	game->kingPosition[WHITE].y = 1,game->kingPosition[BLACK].y = 8;
+	game->kingPosition[WHITE].x = game->kingPosition[BLACK].x = c2num('e');
+	game->coverage[WHITE] = 0x0000000000FFFF7E;
+	game->coverage[BLACK] = 0x7EFFFF0000000000;
 }
 
 void printBoard(position *game){
@@ -136,22 +140,18 @@ void printBoard(position *game){
 		}
 		putchar('\n');
 	}
-	
-	//print the coverage
-	#ifdef DEBUG
-	printf("0x%llX 0x%llX\n",game->coverage[WHITE],game->coverage[BLACK]);
-	for(int i=7;i>=0;--i){
-		for(int j=0;j<8;++j){
-			putchar(getBit(game->coverage[WHITE],i*8+j,uint64_t)+'0');
-		}
-		putchar('\n');
-	}
-	putchar('\n');
-	for(int i=7;i>=0;--i){
-		for(int j=0;j<8;++j){
-			putchar(getBit(game->coverage[BLACK],i*8+j,uint64_t)+'0');
-		}
-		putchar('\n');
-	}
-	#endif
+
+	// for(int i=7;i>=0;--i){
+	// 	for(int j=0;j<8;++j){
+	// 		putchar(getBit(game->coverage[WHITE],i*8+j,uint64_t)+'0');
+	// 	}
+	// 	putchar('\n');
+	// }
+	// putchar('\n');
+	// for(int i=7;i>=0;--i){
+	// 	for(int j=0;j<8;++j){
+	// 		putchar(getBit(game->coverage[BLACK],i*8+j,uint64_t)+'0');
+	// 	}
+	// 	putchar('\n');
+	// }
 }

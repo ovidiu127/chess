@@ -15,16 +15,16 @@ const int bPy[]={-1,-1,-1,-2};
 const int wPx[]={1,-1,0,0};
 const int wPy[]={1,1,1,2};
 
-void updateCoverage(position *game){
+uint64_t getCoverage(position *game,bool color){
 	int x,y;
+	uint64_t ans=0;
 
-	game->coverage[game->toMove]=0;
 	for(int i=1;i<=8;++i){
 		for(int j=1;j<=8;++j){
 			if(!validPiece(game->board[j][i])){
 				continue;
 			}
-			if(getPieceColor(game->board[j][i])!=game->toMove){
+			if(getPieceColor(game->board[j][i])!=color){
 				continue;
 			}
 			switch(game->board[j][i]){
@@ -33,10 +33,10 @@ void updateCoverage(position *game){
 				for(int k=0;k<8;++k){
 					x=i+Kx[k], y=j+Ky[k];
 					if(inBounds(x,y)){
-						setBit(game->coverage[game->toMove],(j+Ky[k]-1)*8+(i+Kx[k])-1,uint64_t);
+						setBit(ans,(j+Ky[k]-1)*8+(i+Kx[k])-1,uint64_t);
 						#ifdef DEBUG
 						printf("%lc %c %d %c %d bit:%d\n",game->board[j][i],i+'a'-1,j,i+Kx[k]+'a'-1,j+Ky[k],(j+Ky[k]-1)*8+(i+Kx[k])-1);
-						printbin(game->coverage[game->toMove]);
+						printbin(ans);
 						#endif
 					}
 				}
@@ -46,10 +46,10 @@ void updateCoverage(position *game){
 				for(int k=0;k<8;++k){
 					x=i+Nx[k], y=j+Ny[k];
 					if(inBounds(x,y)){
-						setBit(game->coverage[game->toMove],(j+Ny[k]-1)*8+(i+Nx[k])-1,uint64_t);
+						setBit(ans,(j+Ny[k]-1)*8+(i+Nx[k])-1,uint64_t);
 						#ifdef DEBUG
 						printf("%lc %c %d %c %d bit:%d\n",game->board[j][i],i+'a'-1,j,i+Nx[k]+'a'-1,j+Ny[k],(j+Ny[k]-1)*8+(i+Nx[k])-1);
-						printbin(game->coverage[game->toMove]);
+						printbin(ans);
 						#endif
 					}
 				}
@@ -60,10 +60,10 @@ void updateCoverage(position *game){
 					for(int k=1;k<8;++k){
 						x=i+Bx[l]*k, y=j+By[l]*k;
 						if(inBounds(x,y)){
-							setBit(game->coverage[game->toMove],(j+By[l]*k-1)*8+(i+Bx[l]*k-1),uint64_t);
+							setBit(ans,(j+By[l]*k-1)*8+(i+Bx[l]*k-1),uint64_t);
 							#ifdef DEBUG
 							printf("%lc %c %d %c %d bit:%d\n",game->board[j][i],i+'a'-1,j,i+Bx[l]*k+'a'-1,j+By[l]*k,(j+By[l]*k-1)*8+(i+Bx[l]*k-1));
-							printbin(game->coverage[game->toMove]);
+							printbin(ans);
 							#endif
 							if(game->board[y][x]>=bKING){
 								break;
@@ -81,10 +81,10 @@ void updateCoverage(position *game){
 					for(int k=1;k<8;++k){
 						x=i+Rx[l]*k, y=j+Ry[l]*k;
 						if(inBounds(x,y)){
-							setBit(game->coverage[game->toMove],(j+Ry[l]*k-1)*8+(i+Rx[l]*k-1),uint64_t);
+							setBit(ans,(j+Ry[l]*k-1)*8+(i+Rx[l]*k-1),uint64_t);
 							#ifdef DEBUG
 							printf("%lc %c %d %c %d bit:%d\n",game->board[j][i],i+'a'-1,j,i+Rx[l]*k+'a'-1,j+Ry[l]*k,(j+Ry[l]*k-1)*8+(i+Rx[l]*k-1));
-							printbin(game->coverage[game->toMove]);
+							printbin(ans);
 							#endif
 							if(game->board[y][x]>=bKING){
 								break;
@@ -102,10 +102,10 @@ void updateCoverage(position *game){
 					for(int k=1;k<8;++k){
 						x=i+Qx[l]*k, y=j+Qy[l]*k;
 						if(inBounds(x,y)){
-							setBit(game->coverage[game->toMove],(j+Qy[l]*k-1)*8+(i+Qx[l]*k-1),uint64_t);
+							setBit(ans,(j+Qy[l]*k-1)*8+(i+Qx[l]*k-1),uint64_t);
 							#ifdef DEBUG
 							printf("%lc %c %d %c %d bit:%d\n",game->board[j][i],i+'a'-1,j,i+Qx[l]*k+'a'-1,j+Qy[l]*k,(j+Qy[l]*k-1)*8+(i+Qx[l]*k-1));
-							printbin(game->coverage[game->toMove]);
+							printbin(ans);
 							#endif
 							if(game->board[y][x]>=bKING){
 								break;
@@ -121,10 +121,10 @@ void updateCoverage(position *game){
 				for(int k=0;k<2;++k){
 					x=i+bPx[k], y=j+bPy[k];
 					if(inBounds(x,y)){
-						setBit(game->coverage[game->toMove],(j+bPy[k]-1)*8+(i+bPx[k]-1),uint64_t);
+						setBit(ans,(j+bPy[k]-1)*8+(i+bPx[k]-1),uint64_t);
 						#ifdef DEBUG
 						printf("%lc %c %d %c %d bit:%d\n",game->board[j][i],i+'a'-1,j,i+bPx[k]+'a'-1,j+bPy[k],(j+bPy[k]-1)*8+(i+bPx[k]-1));
-						printbin(game->coverage[game->toMove]);
+						printbin(ans);
 						#endif
 					}
 				}
@@ -133,10 +133,10 @@ void updateCoverage(position *game){
 				for(int k=0;k<2;++k){
 					x=i+wPx[k], y=j+wPy[k];
 					if(inBounds(x,y)){
-						setBit(game->coverage[game->toMove],(j+wPy[k]-1)*8+(i+wPx[k]-1),uint64_t);
+						setBit(ans,(j+wPy[k]-1)*8+(i+wPx[k]-1),uint64_t);
 						#ifdef DEBUG
 						printf("%lc %c %d %c %d bit:%d\n",game->board[j][i],i+'a'-1,j,i+wPx[k]+'a'-1,j+wPy[k],(j+wPy[k]-1)*8+(i+wPx[k]-1));
-						printbin(game->coverage[game->toMove]);
+						printbin(ans);
 						#endif
 					}
 				}
@@ -149,6 +149,7 @@ void updateCoverage(position *game){
 			}
 		}
 	}
+	return ans;
 }
 
 moves* getMoves(position *game,int px,int py){

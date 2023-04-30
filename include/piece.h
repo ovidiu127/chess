@@ -13,6 +13,6 @@ moves* getMoves(position *game,int px,int py);
 
 bool validPiece(unsigned piece);
 
-void updateCoverage(position *game);
+uint64_t getCoverage(position *game,bool color);
 
 #endif

@@ -34,7 +34,10 @@ typedef struct{
     int board[9][9];
     bool toMove;
     uint64_t coverage[2];
-    unsigned char wk,bk;
+    bool kingCastle[2];
+    struct{
+        int x,y;
+    }kingPosition[2];
 }position;
 
 typedef struct{

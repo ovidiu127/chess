@@ -53,7 +53,7 @@ bool canCastle(position *game,mov *m){
 	unsigned piece = game->board[y1][x1];
 	if(piece == wKING){
 		//check if the white king hasn't moved
-		if(!game->wk){
+		if(!game->kingCastle[WHITE]){
 			return false;
 		}
 
@@ -80,7 +80,7 @@ bool canCastle(position *game,mov *m){
 	}
 	else{
 		//check if the black king hasn't moved
-		if(!game->bk){
+		if(!game->kingCastle[BLACK]){
 			return false;
 		}
 		
@@ -565,7 +565,7 @@ bool move(position *game,mov *m){
 		else{
 			makeMove(game,m);
 		}
-		game->wk=0;
+		game->kingCastle[WHITE]=0;
 		break;
 	case bKING:
 		//if the king moves more than 1 sqr
@@ -575,7 +575,7 @@ bool move(position *game,mov *m){
 		else{
 			makeMove(game,m);
 		}
-		game->bk=0;
+		game->kingCastle[BLACK]=0;
 		break;
 	default:
 		makeMove(game,m);
@@ -583,12 +583,9 @@ bool move(position *game,mov *m){
 	}
 
 	//for current player
-	updateCoverage(game);
+	game->coverage[WHITE]=getCoverage(game,WHITE);
 	//for oponent
-	game->toMove=!game->toMove;
-	updateCoverage(game);
-	//fix position
-	game->toMove=!game->toMove;
+	game->coverage[BLACK]=getCoverage(game,BLACK);
 
 	return true;
 }
