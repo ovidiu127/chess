@@ -1,5 +1,12 @@
 #include "board.h"
 
+extern const int Kx[];
+extern const int Ky[];
+extern const int bPx[];
+extern const int bPy[];
+extern const int wPx[];
+extern const int wPy[];
+
 void initMatch(match *g){
 	g->current=malloc(sizeof(position));
 	g->no=0;
@@ -36,13 +43,92 @@ void getFromPast(match *g){
 int evalPosition(position *game){
 	int score=0;
 
+	int doubledPawns=0,blockedPawns=0,isolatedPawns=0,mobility=0,x,y;
+	bool aux;
+
 	for(int i=1;i<=8;++i){
 		for(int j=1;j<=8;++j){
 			if(game->board[i][j]){
-				score+=getPieceValue(game->board[i][j]);
+				score += getPieceValue(game->board[i][j]);
+				mobility += getBit(game->coverage[WHITE],(i - 1) * 8 + (j - 1),uint64_t) -
+							getBit(game->coverage[BLACK],(i - 1) * 8 + (j - 1),uint64_t);
+				
+				if(game->board[i][j] == wPAWN){
+					//check if pawn is doubled
+					if(game->board[i - 1][j] == wPAWN){
+						++doubledPawns;
+					}
+
+					//check if pawn is blocked
+					//check if there is a piece ahead of opposite color
+					if(game->board[i + 1][j] && getPieceColor(game->board[i + 1][j]) == BLACK){
+						aux = 1;
+						//check if there is a piece of the same color on diagonal
+						for(int k=0;k<2;++k){
+							x=i+wPx[k], y=j+wPy[k];
+							if(inBounds(x,y)){
+								if(game->board[x][y] && getPieceColor(game->board[x][y]) == BLACK){
+									aux = 0;
+									break;
+								}
+							}
+						}
+						doubledPawns += aux;
+					}
+
+					//check if pawn is isolated
+					aux = 1;
+					for(int k=0;k<8;++k){
+						x=i+Kx[k], y=j+Ky[k];
+						if(inBounds(x,y)){
+							if(game->board[x][y]){
+								aux = 0;
+								break;
+							}
+						}
+					}
+					isolatedPawns += aux;
+				}
+				else if(game->board[i][j] == bPAWN){
+					//check if pawn is doubled
+					if(game->board[i - 1][j] == bPAWN){
+						--doubledPawns;
+					}
+
+					//check if pawn is blocked
+					//check if there is a piece ahead of opposite color
+					if(game->board[i + 1][j] && getPieceColor(game->board[i + 1][j]) == WHITE){
+						aux = 1;
+						//check if there is a piece of the same color on diagonal
+						for(int k=0;k<2;++k){
+							x=i+bPx[k], y=j+bPy[k];
+							if(inBounds(x,y)){
+								if(game->board[x][y] && getPieceColor(game->board[x][y]) == WHITE){
+									aux = 0;
+									break;
+								}
+							}
+						}
+						doubledPawns -= aux;
+					}
+
+					//check if pawn is isolated
+					aux = 1;
+					for(int k=0;k<8;++k){
+						x=i+Kx[k], y=j+Ky[k];
+						if(inBounds(x,y)){
+							if(game->board[x][y]){
+								aux = 0;
+								break;
+							}
+						}
+					}
+					isolatedPawns -= aux;
+				}
 			}
 		}
 	}
+	score += mobility - doubledPawns - isolatedPawns - blockedPawns;
 
 	return score;
 }

@@ -305,3 +305,87 @@ bool getPieceColor(unsigned piece){
 bool validPiece(unsigned piece){
 	return piece >= bKING;
 }
+
+bool endGame(position *game){
+	for(int y=1;y<=8;++y){
+		for(int x=1;x<=8;++x){
+			if(game->board[y][x] && getPieceColor(game->board[y][x]) == game->toMove){
+				switch(game->board[y][x]){
+				case wKING:
+				case bKING:
+					for(int i=0;i<8;++i){
+						if(isLegal(game,&((mov){x,y,Kx[i],Ky[i]}))){
+							return false;
+						}
+					}
+					break;
+				case wKNIGHT:
+				case bKNIGHT:
+					for(int i=0;i<8;++i){
+						if(isLegal(game,&((mov){x,y,Nx[i],Ny[i]}))){
+							return false;
+						}
+					}
+					break;
+				case wBISHOP:
+				case bBISHOP:
+					for(int i=0;i<4;++i){
+						for(int k=1;k<8;++k){
+							if(isLegal(game,&((mov){x,y,Bx[i]*k,By[i]*k}))){
+								return false;
+							}
+							else{
+								break;
+							}
+						}
+					}
+					break;
+				case wROOK:
+				case bROOK:
+					for(int i=0;i<4;++i){
+						for(int k=1;k<8;++k){
+							if(isLegal(game,&((mov){x,y,Rx[i]*k,Ry[i]*k}))){
+								return false;
+							}
+							else{
+								break;
+							}
+						}
+					}
+					break;
+				case wQUEEN:
+				case bQUEEN:
+					for(int i=0;i<8;++i){
+						for(int k=1;k<8;++k){
+							if(isLegal(game,&((mov){x,y,Qx[i]*k,Qy[i]*k}))){
+								return false;
+							}
+							else{
+								break;
+							}
+						}
+					}
+					break;
+				case bPAWN:
+					for(int i=0;i<4;++i){
+						if(isLegal(game,&((mov){x,y,bPx[i],bPy[i]}))){
+							return false;
+						}
+					}
+					break;
+				case wPAWN:
+					for(int i=0;i<4;++i){
+						if(isLegal(game,&((mov){x,y,wPx[i],wPy[i]}))){
+							return false;
+						}
+					}
+					break;
+				default:
+					printf("Not a valid piece!\n");
+					exit(385);
+				}
+			}
+		}
+	}
+	return true;
+}

@@ -39,7 +39,7 @@ void play(){
 	bool gameOver=0;
 	char command[5];
 	char mode;
-	bool state;
+	bool state,check;
 	do{
 		printf("Please choose mode:\n\t1) 1v1\n\t2) computer\n[1/2] ");
 		avoidSpaces();
@@ -50,13 +50,26 @@ void play(){
 		while(!gameOver){
 			printBoard(mainGame.current);
 			printf("Score: %d\n",evalPosition(mainGame.current));
+
+			check = getBit(mainGame.current->coverage[!mainGame.current->toMove],
+						(mainGame.current->kingPosition[mainGame.current->toMove].y - 1) * 8 +
+						(mainGame.current->kingPosition[mainGame.current->toMove].x - 1),
+						uint64_t);
+			gameOver = endGame(mainGame.current);
+			if(gameOver){
+				if(check){
+					printf("%s wins!\n",(mainGame.current->toMove == WHITE) ? "BLACK" : "WHITE");
+				}
+				else{
+					printf("Draw!\n");
+				}
+				return;
+			}
+
+			printf("%s",check ? "Check!\n":"");
 			do{
-				printf("%s%s to move: ",
-					    getBit(mainGame.current->coverage[!mainGame.current->toMove],
-							(mainGame.current->kingPosition[mainGame.current->toMove].y - 1) * 8 +
-							(mainGame.current->kingPosition[mainGame.current->toMove].x - 1),
-							uint64_t) ? "Check!\n":"",
-						(mainGame.current->toMove==WHITE)?"WHITE":"BLACK");
+				printf("%s to move: ",
+						(mainGame.current->toMove == WHITE) ? "WHITE" : "BLACK");
 
 				scanf("%4s",command);
 				toLower(command);
@@ -84,16 +97,28 @@ void play(){
 		}while(difficulty<1 || difficulty >4);
 
 		while(!gameOver){
+			check = getBit(mainGame.current->coverage[!mainGame.current->toMove],
+						(mainGame.current->kingPosition[mainGame.current->toMove].y - 1) * 8 +
+						(mainGame.current->kingPosition[mainGame.current->toMove].x - 1),
+						uint64_t);
+			gameOver = endGame(mainGame.current);
+			if(gameOver){
+				if(check){
+					printf("%s wins!\n",(mainGame.current->toMove == WHITE) ? "BLACK" : "WHITE");
+				}
+				else{
+					printf("Draw!\n");
+				}
+				return;
+			}
 			//player's move
 			if(mainGame.current->toMove == color){
 				printBoard(mainGame.current);
 				printf("Score: %d\n",evalPosition(mainGame.current));
+				printf("%s",check ? "Check!\n":"");
+				
 				do{
-					printf("%sYour move: ",
-							getBit(mainGame.current->coverage[!mainGame.current->toMove],
-							(mainGame.current->kingPosition[mainGame.current->toMove].y - 1) * 8 +
-							(mainGame.current->kingPosition[mainGame.current->toMove].x - 1),
-							uint64_t) ? "Check!\n":"");
+					printf("Your move: ");
 					scanf("%4s",command);
 					toLower(command);
 					state=analizeCommand(command,2);

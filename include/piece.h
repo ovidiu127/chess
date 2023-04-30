@@ -15,4 +15,6 @@ bool validPiece(unsigned piece);
 
 uint64_t getCoverage(position *game,bool color);
 
+bool endGame(position *game);
+
 #endif
