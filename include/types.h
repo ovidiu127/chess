@@ -22,7 +22,7 @@ typedef enum{
 }pieceType;
 
 typedef struct{
-    int px,py,x,y;
+    int px,py,x,y,computerMove;
 }mov;
 
 typedef struct{
@@ -36,5 +36,11 @@ typedef struct{
     uint64_t coverage[2];
     unsigned char wk,bk;
 }position;
+
+typedef struct{
+    position *current;
+    position *past;
+    int no,dim;
+}match;
 
 #endif

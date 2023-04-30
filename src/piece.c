@@ -170,7 +170,7 @@ moves* getMoves(position *game,int px,int py){
 	case bKING:
 		for(int i=0;i<8;++i){
 			if(isLegal(game,&((mov){px,py,Kx[i],Ky[i]}))){
-				ans->m[j++]=(mov){Kx[i],Ky[i]};
+				ans->m[j++]=(mov){px,py,Kx[i],Ky[i],1};
 			}
 		}
 		break;
@@ -178,7 +178,7 @@ moves* getMoves(position *game,int px,int py){
 	case bKNIGHT:
 		for(int i=0;i<8;++i){
 			if(isLegal(game,&((mov){px,py,Nx[i],Ny[i]}))){
-				ans->m[j++]=(mov){px,py,Nx[i],Ny[i]};
+				ans->m[j++]=(mov){px,py,Nx[i],Ny[i],1};
 			}
 		}
 		break;
@@ -187,7 +187,7 @@ moves* getMoves(position *game,int px,int py){
 		for(int i=0;i<4;++i){
 			for(int k=1;k<8;++k){
 				if(isLegal(game,&((mov){px,py,Bx[i]*k,By[i]*k}))){
-					ans->m[j++]=(mov){px,py,Bx[i]*k,By[i]*k};
+					ans->m[j++]=(mov){px,py,Bx[i]*k,By[i]*k,1};
 				}
 				else{
 					break;
@@ -200,7 +200,7 @@ moves* getMoves(position *game,int px,int py){
 		for(int i=0;i<4;++i){
 			for(int k=1;k<8;++k){
 				if(isLegal(game,&((mov){px,py,Rx[i]*k,Ry[i]*k}))){
-					ans->m[j++]=(mov){px,py,Rx[i]*k,Ry[i]*k};
+					ans->m[j++]=(mov){px,py,Rx[i]*k,Ry[i]*k,1};
 				}
 				else{
 					break;
@@ -213,7 +213,7 @@ moves* getMoves(position *game,int px,int py){
 		for(int i=0;i<8;++i){
 			for(int k=1;k<8;++k){
 				if(isLegal(game,&((mov){px,py,Qx[i]*k,Qy[i]*k}))){
-					ans->m[j++]=(mov){px,py,Qx[i]*k,Qy[i]*k};
+					ans->m[j++]=(mov){px,py,Qx[i]*k,Qy[i]*k,1};
 				}
 				else{
 					break;
@@ -224,14 +224,14 @@ moves* getMoves(position *game,int px,int py){
 	case bPAWN:
 		for(int i=0;i<4;++i){
 			if(isLegal(game,&((mov){px,py,bPx[i],bPy[i]}))){
-				ans->m[j++]=(mov){px,py,bPx[i],bPy[i]};
+				ans->m[j++]=(mov){px,py,bPx[i],bPy[i],1};
 			}
 		}
 		break;
 	case wPAWN:
 		for(int i=0;i<4;++i){
 			if(isLegal(game,&((mov){px,py,wPx[i],wPy[i]}))){
-				ans->m[j++]=(mov){px,py,wPx[i],wPy[i]};
+				ans->m[j++]=(mov){px,py,wPx[i],wPy[i],1};
 			}
 		}
 		break;

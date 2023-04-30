@@ -5,7 +5,12 @@ bool canPromote(mov *m){
 	return (y2==1||y2==8);
 }
 
-void promote(position *game,int x2,int y2){
+void promote(position *game,int x2,int y2,int computerMove){
+	if(computerMove){
+		game->board[y2][x2]=(game->toMove==WHITE)?wQUEEN:bQUEEN;
+		return;
+	}
+
 	bool ok=0;
 	do{
 		printf("Promote pawn to [Q/R/N/B]:");
@@ -526,7 +531,8 @@ bool move(position *game,mov *m){
 	{
 	case wPAWN:
 		if(canPromote(m)){
-			promote(game,x2,y2);
+			//if (computer-move) do not ask for input
+			promote(game,x2,y2,m->computerMove);
 			game->board[y1][x1]=0;
 		}
 		else{
@@ -539,7 +545,8 @@ bool move(position *game,mov *m){
 		break;
 	case bPAWN:
 		if(canPromote(m)){
-			promote(game,x2,y2);
+			//if (computer-move) do not ask for input
+			promote(game,x2,y2,m->computerMove);
 			game->board[y1][x1]=0;
 		}
 		else{
@@ -590,11 +597,4 @@ uint16_t getCapturedPiece(position *game,mov *m){
 	int x2=m->px+m->x,y2=m->py+m->y;
 
 	return game->board[y2][x2];
-}
-
-void unmove(position *game,mov *m,uint16_t capturedPiece){
-	int x1=m->px,y1=m->py,x2=m->px+m->x,y2=m->py+m->y;
-
-	game->board[y1][x1]=game->board[y2][x2];
-	game->board[y2][x2]=capturedPiece;
 }

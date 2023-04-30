@@ -9,7 +9,7 @@
 
 bool canPromote(mov *m);
 
-void promote(position *game,int x2,int y2);
+void promote(position *game,int x2,int y2,int computerMove);
 
 bool canCastle(position *game,mov *m);
 
@@ -30,7 +30,5 @@ bool move(position *game,mov *m);
 void clearMarks(position *game);
 
 uint16_t getCapturedPiece(position *game,mov *m);
-
-void unmove(position *game,mov *m,uint16_t capturedPiece);
 
 #endif

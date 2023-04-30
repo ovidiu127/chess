@@ -6,9 +6,16 @@
 #include "move.h"
 #include "piece.h"
 
-position mainGame;
+#include <string.h>
 
-bool analizeCommand(const char* command){
+match mainGame;
+
+bool analizeCommand(const char* command,int mode){
+	if(!strcmp(command,"undo")){
+		getFromPast(&mainGame);
+		// mainGame.current->toMove=!mainGame.current->toMove;
+		return true;
+	}
 	int c[]={command[0]-'a'+1,command[1]-'0',command[2]-'a'+1,command[3]-'0'};
 	for(int i=0;i<4;++i){
 		if(c[i]<1||c[i]>8){
@@ -16,12 +23,19 @@ bool analizeCommand(const char* command){
 			return false;
 		}
 	}
-	mov m={c[0],c[1],c[2]-c[0],c[3]-c[1]};
-	return move(&mainGame,&m);
+	mov m={c[0],c[1],c[2]-c[0],c[3]-c[1],0};
+	if(move(mainGame.current,&m) == 1){
+		mainGame.current->toMove=!mainGame.current->toMove;
+		addToPast(&mainGame);
+		return true;
+	}
+	return false;
 }
 
 void play(){
-	initBoard(&mainGame);
+	initMatch(&mainGame);
+	initBoard(mainGame.current);
+	addToPast(&mainGame);
 
 	bool gameOver=0;
 	char command[5];
@@ -35,19 +49,17 @@ void play(){
 
 	if(mode=='1'){
 		while(!gameOver){
-			printBoard(&mainGame);
-			printf("Score: %d\n",evalPosition(&mainGame));
+			printBoard(mainGame.current);
+			printf("Score: %d\n",evalPosition(mainGame.current));
 			do{
-				printf("%s to move: ",(mainGame.toMove==WHITE)?"WHITE":"BLACK");
+				printf("%s to move: ",(mainGame.current->toMove==WHITE)?"WHITE":"BLACK");
 				scanf("%4s",command);
 				toLower(command);
-				state=analizeCommand(command);
+				state=analizeCommand(command,1);
 				if(!state){
 					printf("Illegal move or invalid command!\n");
 				}
 			}while(!state);
-			
-			mainGame.toMove=!mainGame.toMove;
 		}
 	}
 	else{
@@ -68,14 +80,14 @@ void play(){
 
 		while(!gameOver){
 			//player's move
-			if(mainGame.toMove == color){
-				printBoard(&mainGame);
-				printf("Score: %d\n",evalPosition(&mainGame));
+			if(mainGame.current->toMove == color){
+				printBoard(mainGame.current);
+				printf("Score: %d\n",evalPosition(mainGame.current));
 				do{
 					printf("Your move: ");
 					scanf("%4s",command);
 					toLower(command);
-					state=analizeCommand(command);
+					state=analizeCommand(command,2);
 					if(!state){
 						printf("Illegal move or invalid command!\n");
 					}
@@ -83,10 +95,9 @@ void play(){
 			}
 			//computer's move
 			else{
-				genMove(&mainGame,difficulty);
+				genMove(mainGame.current,difficulty);
+				mainGame.current->toMove=!mainGame.current->toMove;
 			}
-			
-			mainGame.toMove=!mainGame.toMove;
 		}
 	}
 }

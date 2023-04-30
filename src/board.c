@@ -1,5 +1,39 @@
 #include "board.h"
 
+void initMatch(match *g){
+	g->current=malloc(sizeof(position));
+	g->no=0;
+	g->dim=64;
+	g->past=malloc(g->dim * sizeof(position));
+	if(g->past == NULL){
+		perror("malloc()");
+		exit(1);
+	}
+}
+
+void addToPast(match *g){
+	g->past[g->no]=*g->current;
+	++g->no;
+	if(g->no == g->dim){
+		g->dim += 64;
+		g->past=realloc(g->past, g->dim * sizeof(position));
+		if(g->past == NULL){
+			perror("realloc()");
+			exit(1);
+		}
+	}
+}
+
+void getFromPast(match *g){
+	--g->no;
+	if(g->no < 0){
+		g->no = 0;
+	}
+	if(g->no >= 1){
+		*g->current=g->past[g->no - 1];
+	}
+}
+
 int evalPosition(position *game){
 	int score=0;
 
