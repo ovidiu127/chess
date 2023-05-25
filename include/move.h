@@ -4,6 +4,7 @@
 #include "utils.h"
 #include "types.h"
 #include "piece.h"
+#include "menu.h"
 
 #define EN_PASSANT 'E'
 

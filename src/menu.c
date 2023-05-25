@@ -1,7 +1,7 @@
 #include "menu.h"
 
 char menu(const char *text,const char *options){
-    char ans,ok = 0;
+    char ans[4];
     printf("%s",text);
     putchar('[');
     for(int i=0;options[i] != 0;++i){
@@ -12,12 +12,24 @@ char menu(const char *text,const char *options){
 
     while(1){
         avoidSpaces(stdin);
-        scanf("%c",&ans);
-        if(strchr(options,ans)){
-            ok = 1;
+        fgets(ans,3,stdin);
+        if(ans[1] == '\n' || ans[1] == 10){
+            if(strchr(options,ans[0])){
+                break;
+            }
+            else{
+                printf("Invalid option!\n");
+                putchar('[');
+                for(int i=0;options[i] != 0;++i){
+                    printf("%c/",options[i]);
+                }
+                printf("\b] ");
+                fflush(stdout);
+            }
         }
-        if(!ok){
-            printf("Invalid option!\n");
+        else{
+            skipLine(stdin);
+            printf("Incorrect input!\n");
             putchar('[');
             for(int i=0;options[i] != 0;++i){
                 printf("%c/",options[i]);
@@ -25,10 +37,7 @@ char menu(const char *text,const char *options){
             printf("\b] ");
             fflush(stdout);
         }
-        else{
-            break;
-        }
     }
     
-    return ans;
+    return ans[0];
 }

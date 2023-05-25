@@ -13,41 +13,29 @@ void promote(position *game,int x2,int y2,int computerMove){
 		return;
 	}
 
-	bool ok=0;
-	do{
-		printf("Promote pawn to [Q/R/N/B]:");
-		avoidSpaces();
-		char promote=getchar();
-		if(promote >= 'A' && promote <= 'Z'){
-			promote += 32;
-		}
-		switch (promote)
-		{
-		case 'q':
-			game->board[y2][x2] = (game->toMove == WHITE) ? wQUEEN : bQUEEN;
-			ok = 1;
-			break;
+	char promote = menu("Promote pawn to: ","qrnbQRNB");
+	if(promote >= 'A' && promote <= 'Z'){
+		promote += 32;
+	}
 		
-		case 'r':
-			game->board[y2][x2] = (game->toMove == WHITE) ? wROOK : bROOK;
-			ok = 1;
-			break;
-		
-		case 'n':
-			game->board[y2][x2] = (game->toMove == WHITE) ? wKNIGHT : bKNIGHT;
-			ok = 1;
-			break;
-		
-		case 'b':
-			game->board[y2][x2] = (game->toMove == WHITE) ? wBISHOP : bBISHOP;
-			ok = 1;
-			break;
-		
-		default:
-			printf("Invalid choice!\n");
-			break;
-		}
-	}while(!ok);
+	switch (promote)
+	{
+	case 'q':
+		game->board[y2][x2] = (game->toMove == WHITE) ? wQUEEN : bQUEEN;
+		break;
+	
+	case 'r':
+		game->board[y2][x2] = (game->toMove == WHITE) ? wROOK : bROOK;
+		break;
+	
+	case 'n':
+		game->board[y2][x2] = (game->toMove == WHITE) ? wKNIGHT : bKNIGHT;
+		break;
+	
+	case 'b':
+		game->board[y2][x2] = (game->toMove == WHITE) ? wBISHOP : bBISHOP;
+		break;
+	}
 }
 
 bool canCastle(position *game,mov *m){
